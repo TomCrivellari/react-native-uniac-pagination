@@ -50,6 +50,7 @@ lanchonete/
 └── src/
     ├── screens/        # Telas do app (uma por arquivo)
     ├── components/     # Componentes reutilizáveis (botões, cards...)
+    ├── navigation/     # Navegadores (menu lateral / drawer)
     ├── context/        # Estado global (React Context)
     ├── data/           # Dados estáticos / mockados (ex.: cardápio)
     └── theme/          # Design system: cores, tipografia, espaçamentos
