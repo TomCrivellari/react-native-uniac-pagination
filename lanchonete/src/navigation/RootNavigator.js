@@ -1,4 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import CheckoutScreen from '../screens/CheckoutScreen';
+import ConfirmacaoScreen from '../screens/ConfirmacaoScreen';
 
 import PlaceholderScreen from '../screens/PlaceholderScreen';
 import { colors, fontWeights } from '../theme';
@@ -86,12 +88,12 @@ export default function RootNavigator() {
       />
       <Stack.Screen
         name="Checkout"
-        component={PlaceholderScreen}
+        component={CheckoutScreen}
         options={{ title: 'Finalizar pedido' }}
       />
-      <Stack.Screen
+        <Stack.Screen
         name="Confirmacao"
-        component={PlaceholderScreen}
+        component={ConfirmacaoScreen}
         options={{
           title: 'Pedido confirmado',
           headerBackVisible: false,
