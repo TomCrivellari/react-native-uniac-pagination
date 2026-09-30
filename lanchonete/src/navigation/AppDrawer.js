@@ -1,12 +1,22 @@
 import { Ionicons } from '@expo/vector-icons';
 import { createDrawerNavigator } from '@react-navigation/drawer';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 
 import DrawerContent from '../components/DrawerContent';
-import HomeScreen from '../screens/HomeScreen';
 import PlaceholderScreen from '../screens/PlaceholderScreen';
 import { colors, fontWeights } from '../theme';
+import MainTabs from './MainTabs';
 
 const Drawer = createDrawerNavigator();
+
+// Título do cabeçalho conforme a aba aberta dentro da tela Home
+const titulosAbas = {
+  Home: 'Início',
+  Busca: 'Buscar',
+  Carrinho: 'Carrinho',
+  Pedidos: 'Meus pedidos',
+  Perfil: 'Perfil',
+};
 
 function icone(nome) {
   return ({ color, size }) => <Ionicons name={nome} color={color} size={size} />;
@@ -29,8 +39,11 @@ export default function AppDrawer() {
     >
       <Drawer.Screen
         name="Home"
-        component={HomeScreen}
-        options={{ title: 'Início', drawerIcon: icone('home-outline') }}
+        component={MainTabs}
+        options={({ route }) => ({
+          title: titulosAbas[getFocusedRouteNameFromRoute(route) ?? 'Home'],
+          drawerIcon: icone('home-outline'),
+        })}
       />
 
       {/* Telas ainda em desenvolvimento: quem terminar a sua troca o PlaceholderScreen pela tela nova */}
