@@ -3,10 +3,10 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 
 import DrawerContent from '../components/DrawerContent';
+import CarrinhoScreen from '../screens/CarrinhoScreen';
 import PlaceholderScreen from '../screens/PlaceholderScreen';
 import { colors, fontWeights } from '../theme';
 import MainTabs from './MainTabs';
-import RootNavigator from './RootNavigator';
 
 const Drawer = createDrawerNavigator();
 
@@ -60,8 +60,14 @@ export default function AppDrawer() {
       />
       <Drawer.Screen
         name="Cart"
-        component={RootNavigator}
+        component={CarrinhoScreen}
         options={{ title: 'Carrinho', drawerIcon: icone('cart-outline') }}
+        listeners={({ navigation }) => ({
+          drawerItemPress: (e) => {
+            e.preventDefault();
+            navigation.navigate('Home', { screen: 'Carrinho' });
+          },
+        })}
       />
       <Drawer.Screen
         name="Orders"

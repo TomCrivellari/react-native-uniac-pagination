@@ -1,6 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
+import { useCart } from '../context/CartContext';
+import CarrinhoScreen from '../screens/CarrinhoScreen';
 import HomeScreen from '../screens/HomeScreen';
 import PlaceholderScreen from '../screens/PlaceholderScreen';
 import { colors, fontWeights } from '../theme';
@@ -23,6 +25,8 @@ const icones = {
  * Para entregar a sua tela: troque o `component` da aba pela tela nova.
  */
 export default function MainTabs() {
+  const { quantidadeTotal } = useCart();
+
   return (
     <Tab.Navigator
       initialRouteName="Home"
@@ -42,11 +46,8 @@ export default function MainTabs() {
       <Tab.Screen name="Busca" component={PlaceholderScreen} options={{ title: 'Buscar' }} />
       <Tab.Screen
         name="Carrinho"
-        component={TelaTemporaria}
-        initialParams={{
-          titulo: 'Carrinho',
-          atalhos: [{ texto: 'Ir para o Checkout', destino: 'Checkout' }],
-        }}
+        component={CarrinhoScreen}
+        options={{ tabBarBadge: quantidadeTotal > 0 ? quantidadeTotal : undefined }}
       />
       <Tab.Screen
         name="Pedidos"

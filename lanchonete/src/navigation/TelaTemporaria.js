@@ -18,7 +18,11 @@ export default function TelaTemporaria({ navigation, route }) {
 
   function ir({ destino, reset }) {
     if (reset) {
-      navigation.reset({ index: 0, routes: [{ name: destino }] });
+      let alvo = navigation;
+      while (alvo.getParent() && !alvo.getState().routeNames.includes(destino)) {
+        alvo = alvo.getParent();
+      }
+      alvo.reset({ index: 0, routes: [{ name: destino }] });
     } else {
       navigation.navigate(destino);
     }
