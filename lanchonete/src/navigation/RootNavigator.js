@@ -1,4 +1,5 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { StatusBar } from 'expo-status-bar';
 import CheckoutScreen from '../screens/CheckoutScreen';
 import ConfirmacaoScreen from '../screens/ConfirmacaoScreen';
 import LoginScreen from '../screens/LoginScreen';
@@ -21,20 +22,19 @@ export default function RootNavigator() {
         headerTitleStyle: { fontWeight: fontWeights.bold },
         headerBackButtonDisplayMode: 'minimal',
         contentStyle: { backgroundColor: colors.background },
-        statusBarStyle: 'light',
       }}
+      // statusBarStyle do native-stack quebra no Expo Go (iOS), então a barra de status usa o expo-status-bar.
+      // Telas com o cabeçalho vermelho pedem ícones claros; as sem cabeçalho cuidam da própria barra.
+      screenLayout={({ options, children }) => (
+        <>
+          {options.headerShown !== false && <StatusBar style="light" />}
+          {children}
+        </>
+      )}
     >
-      {/* Fluxo de entrada: sem cabeçalho e com barra de status escura (fundo claro) */}
-      <Stack.Screen
-        name="Splash"
-        component={SplashScreen}
-        options={{ headerShown: false, statusBarStyle: 'dark' }}
-      />
-      <Stack.Screen
-        name="Login"
-        component={LoginScreen}
-        options={{ headerShown: false, statusBarStyle: 'dark' }}
-      />
+      {/* Fluxo de entrada: sem cabeçalho (cada tela define a própria barra de status) */}
+      <Stack.Screen name="Splash" component={SplashScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
       <Stack.Screen
         name="Cadastro"
         component={TelaTemporaria}
@@ -45,14 +45,14 @@ export default function RootNavigator() {
         options={{ title: 'Criar conta' }}
       />
 
-      {/* Área logada: menu lateral (Drawer), que tem as abas dentro da tela Home */}
+      {/* Área logada: menu lateral (Drawer) com as abas dentro dele */}
       <Stack.Screen name="App" component={AppDrawer} options={{ headerShown: false }} />
 
       {/* Telas que abrem por cima das abas */}
       <Stack.Screen
         name="ListaProdutos"
         component={PlaceholderScreen}
-        options={({ route }) => ({ title: route.params?.categoria ?? 'Produtos' })}
+        options={({ route }) => ({ title: route.params?.categoria ?? 'Cardápio' })}
       />
       <Stack.Screen
         name="DetalhesProduto"
