@@ -9,27 +9,9 @@ import TelaTemporaria from './TelaTemporaria';
 
 const Stack = createNativeStackNavigator();
 
-/**
- * Navegador principal (Stack).
- *
- * Rotas e quem é responsável:
- *  - Splash          -> Antonio   (depois de ~2s: navigation.replace('Login'))
- *  - Login           -> Antonio   (login ok: navigation.replace('Main'))
- *  - Cadastro        -> Gabriel Vieira
- *  - Main            -> menu lateral (AppDrawer.js) com as abas (MainTabs.js) na tela Home
- *  - ListaProdutos   -> Mateus    (recebe params: { categoria })
- *  - DetalhesProduto -> Santiago  (recebe params: { produto })
- *  - Checkout        -> Gabriel Viana
- *  - Confirmacao     -> Gabriel Viana
- *
- * Para entregar a sua tela: troque o `component` da rota pela tela nova.
- *
- * Use `replace` (e não `navigate`) ao sair de Splash/Login, para o botão "voltar"
- * do celular não levar o usuário de volta para essas telas.
- */
 export default function RootNavigator() {
   return (
-    <Stack.Navigator
+      <Stack.Navigator
       initialRouteName="Splash"
       screenOptions={{
         headerStyle: { backgroundColor: colors.primary },

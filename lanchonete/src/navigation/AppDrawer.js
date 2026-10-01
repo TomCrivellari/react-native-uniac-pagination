@@ -6,6 +6,7 @@ import DrawerContent from '../components/DrawerContent';
 import PlaceholderScreen from '../screens/PlaceholderScreen';
 import { colors, fontWeights } from '../theme';
 import MainTabs from './MainTabs';
+import RootNavigator from './RootNavigator';
 
 const Drawer = createDrawerNavigator();
 
@@ -59,7 +60,7 @@ export default function AppDrawer() {
       />
       <Drawer.Screen
         name="Cart"
-        component={PlaceholderScreen}
+        component={RootNavigator}
         options={{ title: 'Carrinho', drawerIcon: icone('cart-outline') }}
       />
       <Drawer.Screen
