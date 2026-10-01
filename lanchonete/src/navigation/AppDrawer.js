@@ -5,6 +5,7 @@ import DrawerContent from '../components/DrawerContent';
 import HomeScreen from '../screens/HomeScreen';
 import PlaceholderScreen from '../screens/PlaceholderScreen';
 import { colors, fontWeights } from '../theme';
+import MenuScreen from '../screens/MenuScreen.js';
 
 const Drawer = createDrawerNavigator();
 
@@ -36,7 +37,7 @@ export default function AppDrawer() {
       {/* Telas ainda em desenvolvimento: quem terminar a sua troca o PlaceholderScreen pela tela nova */}
       <Drawer.Screen
         name="Menu"
-        component={PlaceholderScreen}
+        component={MenuScreen}
         options={{ title: 'Cardápio', drawerIcon: icone('fast-food-outline') }}
       />
       <Drawer.Screen
