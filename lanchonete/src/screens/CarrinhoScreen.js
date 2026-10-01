@@ -15,7 +15,7 @@ export default function CarrinhoScreen({ navigation }) {
         <Text style={styles.vazioTitulo}>Seu carrinho está vazio</Text>
         <Text style={styles.vazioTexto}>Que tal escolher algo gostoso no cardápio?</Text>
         <Pressable
-          onPress={() => navigation.navigate('Home')}
+          onPress={() => navigation.navigate('ListaProdutos')}
           style={({ pressed }) => [styles.botao, pressed && styles.botaoPressionado]}
         >
           <Text style={styles.botaoTexto}>Ver cardápio</Text>
