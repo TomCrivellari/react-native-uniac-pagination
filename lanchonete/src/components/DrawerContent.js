@@ -18,7 +18,7 @@ export default function DrawerContent(props) {
   const aberto = useDrawerStatus() === 'open';
 
   function sair() {
-    props.navigation.closeDrawer();
+    // O Login fica no Stack principal, um nível acima do menu lateral
     props.navigation.getParent()?.reset({ index: 0, routes: [{ name: 'Login' }] });
   }
 

@@ -70,7 +70,7 @@ export default function CheckoutScreen({ navigation }) {
     // reset: tira o Checkout do histórico, assim o "voltar" não reabre um carrinho já limpo
     navigation.reset({
       index: 1,
-      routes: [{ name: 'Main' }, { name: 'Confirmacao', params: { pedido } }],
+      routes: [{ name: 'App' }, { name: 'Confirmacao', params: { pedido } }],
     });
   }
 

@@ -21,7 +21,7 @@ export default function ConfirmacaoScreen({ navigation, route }) {
   }, [limparCarrinho]);
 
   function voltarAoInicio() {
-    navigation.reset({ index: 0, routes: [{ name: 'Main' }] });
+    navigation.reset({ index: 0, routes: [{ name: 'App' }] });
   }
 
   return (

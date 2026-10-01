@@ -1,6 +1,8 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import CheckoutScreen from '../screens/CheckoutScreen';
 import ConfirmacaoScreen from '../screens/ConfirmacaoScreen';
+import LoginScreen from '../screens/LoginScreen';
+import SplashScreen from '../screens/SplashScreen';
 
 import PlaceholderScreen from '../screens/PlaceholderScreen';
 import { colors, fontWeights } from '../theme';
@@ -25,23 +27,12 @@ export default function RootNavigator() {
       {/* Fluxo de entrada: sem cabeçalho e com barra de status escura (fundo claro) */}
       <Stack.Screen
         name="Splash"
-        component={TelaTemporaria}
-        initialParams={{
-          titulo: 'Splash',
-          atalhos: [{ texto: 'Ir para o Login', destino: 'Login' }],
-        }}
+        component={SplashScreen}
         options={{ headerShown: false, statusBarStyle: 'dark' }}
       />
       <Stack.Screen
         name="Login"
-        component={TelaTemporaria}
-        initialParams={{
-          titulo: 'Login',
-          atalhos: [
-            { texto: 'Entrar', destino: 'Main', reset: true },
-            { texto: 'Criar conta', destino: 'Cadastro' },
-          ],
-        }}
+        component={LoginScreen}
         options={{ headerShown: false, statusBarStyle: 'dark' }}
       />
       <Stack.Screen
@@ -55,7 +46,7 @@ export default function RootNavigator() {
       />
 
       {/* Área logada: menu lateral (Drawer), que tem as abas dentro da tela Home */}
-      <Stack.Screen name="Main" component={AppDrawer} options={{ headerShown: false }} />
+      <Stack.Screen name="App" component={AppDrawer} options={{ headerShown: false }} />
 
       {/* Telas que abrem por cima das abas */}
       <Stack.Screen
