@@ -18,8 +18,8 @@ export default function DrawerContent(props) {
   const aberto = useDrawerStatus() === 'open';
 
   function sair() {
-    // TODO: voltar para a tela de Login quando ela existir
-    props.navigation.closeDrawer();
+    // O Login fica no Stack principal, um nível acima do menu lateral
+    props.navigation.getParent()?.reset({ index: 0, routes: [{ name: 'Login' }] });
   }
 
   return (
