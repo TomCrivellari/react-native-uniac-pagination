@@ -1,4 +1,4 @@
-import { View, Text, FlatList } from "react-native"
+import { View, Text, FlatList, StyleSheet } from "react-native"
 import { produtos } from "../data/produtos.js"
 
 export default function MenuScreen() {
@@ -7,10 +7,10 @@ export default function MenuScreen() {
       data={produtos}
       keyExtractor={(item) => String(item.id)}
       renderItem={({ item }) => (
-        <View>
-          <Text>{item.nome}</Text>
-          <Text>{item.descricao}</Text>
-          <Text>
+        <View style={styles.card}>
+          <Text style={styles.nome}>{item.nome}</Text>
+          <Text style={styles.descricao}>{item.descricao}</Text>
+          <Text style={styles.preco}>
             {item.preco.toLocaleString("pt-BR", {
               style: "currency",
               currency: "BRL",
@@ -21,3 +21,28 @@ export default function MenuScreen() {
     />
   )
 }
+
+const styles = StyleSheet.create({
+  card: {
+    margin: 10,
+    padding: 16,
+    borderRadius: 8,
+    backgroundColor: "#fff",
+    elevation: 3,
+  },
+  nome: {
+    fontSize: 20,
+    fontWeight: 'bold'
+  },
+  descricao: {
+    marginTop: 8,
+    color: '#666'
+  },
+  preco: {
+    marginTop: 8,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#E63946'
+  }
+
+})
