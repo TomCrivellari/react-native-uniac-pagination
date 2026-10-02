@@ -31,7 +31,7 @@ npm install
 npm start
 ```
 
-Depois de `npm start`, escaneie o QR Code com o Expo Go (celular e computador na **mesma rede Wi-Fi**) ou use os atalhos abaixo:
+Depois de `npm start`, escaneie o QR Code com o Expo Go (celular e computador na **mesma rede Wi-Fi**; veja o [passo a passo](#rodando-no-celular-com-o-expo-go)) ou use os atalhos abaixo:
 
 | Comando           | O que faz                          |
 | ----------------- | ---------------------------------- |
@@ -39,6 +39,34 @@ Depois de `npm start`, escaneie o QR Code com o Expo Go (celular e computador na
 | `npm run android` | Abre no emulador Android           |
 | `npm run ios`     | Abre no simulador iOS (só macOS)   |
 | `npm run web`     | Abre no navegador                  |
+
+## Rodando no celular com o Expo Go
+
+1. Instale o **Expo Go** no celular: [Android (Play Store)](https://play.google.com/store/apps/details?id=host.exp.exponent) ou [iOS (App Store)](https://apps.apple.com/app/expo-go/id982107779).
+2. Conecte o celular e o computador na **mesma rede Wi-Fi**. Desligue os dados móveis (4G/5G) se o celular insistir em usá-los.
+3. Se você estiver logado no Expo Go, faça login com a **mesma conta** no computador. Se não estiver logado no app, pule este passo.
+   ```bash
+   npx expo login     # pede usuário e senha da conta Expo
+   npx expo whoami    # confere com qual conta o CLI está logado
+   ```
+4. Dentro da pasta `lanchonete/`, inicie o servidor:
+   ```bash
+   npm start
+   ```
+5. Escaneie o QR Code que aparece no terminal:
+   - **Android:** pelo próprio Expo Go (opção *Scan QR code*).
+   - **iOS:** pela câmera do iPhone; toque no link que aparecer para abrir no Expo Go.
+6. Aguarde o primeiro carregamento. Depois disso, cada arquivo salvo atualiza o app no celular automaticamente.
+
+### Problemas comuns
+
+| Erro / sintoma | Solução |
+| --- | --- |
+| *"You're signed in to Expo Go as ..., but not signed in to Expo CLI"* | Rode `npx expo login` no computador com a mesma conta do Expo Go, reinicie o `npm start` e toque em **Try again**. Outra opção é sair da conta no Expo Go ou iniciar com `npx expo start --offline`. |
+| O app fica carregando para sempre ou dá *"Could not connect to development server"* | O celular não está alcançando o computador. Confira se os dois estão no mesmo Wi-Fi ou use `npx expo start --tunnel` (funciona em redes diferentes, inclusive 4G/5G). |
+| Rede da faculdade ou Wi-Fi público bloqueia a conexão | Use `npx expo start --tunnel`. |
+| Erro de versão incompatível do Expo Go | Atualize o Expo Go na loja de apps. |
+| Algo estranho depois de um `git pull` | Rode `npm install` e inicie com cache limpo: `npx expo start -c`. |
 
 ## Estrutura do projeto
 

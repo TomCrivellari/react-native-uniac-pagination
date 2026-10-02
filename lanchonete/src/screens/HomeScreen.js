@@ -14,7 +14,7 @@ export default function HomeScreen() {
       />
       <Text style={styles.title}>Bem-vindo ao Fomegão!</Text>
       <Text style={styles.subtitle}>
-        Abra o menu no canto superior esquerdo para navegar.
+        Navegue pelas abas abaixo ou pelo menu no canto superior esquerdo.
       </Text>
     </View>
   );
