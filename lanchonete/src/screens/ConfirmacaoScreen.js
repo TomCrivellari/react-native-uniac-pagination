@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useRef } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
+import Button from '../components/Button';
 // Depende do CartContext (Guilherme): precisa expor limparCarrinho.
 import { useCart } from '../context/CartContext';
 import { colors, fontSizes, fontWeights, radius, spacing } from '../theme';
@@ -38,12 +39,7 @@ export default function ConfirmacaoScreen({ navigation, route }) {
         <Linha rotulo="Total" valor={formatarPreco(pedido.total)} destaque />
       </View>
 
-      <Pressable
-        onPress={voltarAoInicio}
-        style={({ pressed }) => [styles.botao, pressed && styles.botaoPressionado]}
-      >
-        <Text style={styles.botaoTexto}>Voltar ao início</Text>
-      </Pressable>
+      <Button titulo="Voltar ao início" onPress={voltarAoInicio} style={styles.botao} />
     </View>
   );
 }
@@ -109,18 +105,6 @@ const styles = StyleSheet.create({
   },
   botao: {
     alignSelf: 'stretch',
-    backgroundColor: colors.primary,
-    borderRadius: radius.md,
-    paddingVertical: spacing.md,
-    alignItems: 'center',
     marginTop: spacing.lg,
-  },
-  botaoPressionado: {
-    backgroundColor: colors.primaryDark,
-  },
-  botaoTexto: {
-    color: colors.textOnPrimary,
-    fontSize: fontSizes.md,
-    fontWeight: fontWeights.bold,
   },
 });
