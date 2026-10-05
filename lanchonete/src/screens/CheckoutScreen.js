@@ -8,10 +8,11 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 
+import Button from '../components/Button';
+import Input from '../components/Input';
 // Depende do CartContext (Guilherme). Precisa expor: itens, total e limparCarrinho.
 // Cada item precisa ter: nome e quantidade.
 import { useCart } from '../context/CartContext';
@@ -80,9 +81,7 @@ export default function CheckoutScreen({ navigation }) {
         <Ionicons name="cart-outline" size={fontSizes.xxl * 2} color={colors.secondary} />
         <Text style={styles.vazioTitulo}>Seu carrinho está vazio</Text>
         <Text style={styles.vazioTexto}>Adicione produtos para finalizar um pedido.</Text>
-        <Pressable style={styles.botao} onPress={() => navigation.goBack()}>
-          <Text style={styles.botaoTexto}>Voltar</Text>
-        </Pressable>
+        <Button titulo="Voltar" onPress={() => navigation.goBack()} style={styles.botaoVoltar} />
       </View>
     );
   }
@@ -131,16 +130,13 @@ export default function CheckoutScreen({ navigation }) {
         </View>
 
         {entrega && (
-          <View style={styles.campo}>
-            <TextInput
-              value={endereco}
-              onChangeText={setEndereco}
-              placeholder="Endereço de entrega (rua, número, bairro)"
-              placeholderTextColor={colors.textSecondary}
-              style={[styles.input, erros.endereco && styles.inputErro]}
-            />
-            {erros.endereco && <Text style={styles.erro}>{erros.endereco}</Text>}
-          </View>
+          <Input
+            value={endereco}
+            onChangeText={setEndereco}
+            placeholder="Endereço de entrega (rua, número, bairro)"
+            erro={erros.endereco}
+            style={styles.campo}
+          />
         )}
 
         <Text style={styles.secao}>Forma de pagamento</Text>
@@ -185,12 +181,7 @@ export default function CheckoutScreen({ navigation }) {
           </View>
         </View>
 
-        <Pressable
-          onPress={confirmarPedido}
-          style={({ pressed }) => [styles.botao, pressed && styles.botaoPressionado]}
-        >
-          <Text style={styles.botaoTexto}>Confirmar pedido</Text>
-        </Pressable>
+        <Button titulo="Confirmar pedido" onPress={confirmarPedido} style={styles.botaoConfirmar} />
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -255,21 +246,10 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     marginTop: spacing.xs,
   },
+  // O Input já tem marginBottom; aqui o espaço fica só em cima, como nas outras seções
   campo: {
     marginTop: spacing.md,
-  },
-  input: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingVertical: spacing.sm + spacing.xs,
-    paddingHorizontal: spacing.md,
-    fontSize: fontSizes.md,
-    color: colors.text,
-  },
-  inputErro: {
-    borderColor: colors.error,
+    marginBottom: 0,
   },
   erro: {
     fontSize: fontSizes.sm,
@@ -307,20 +287,12 @@ const styles = StyleSheet.create({
     fontWeight: fontWeights.bold,
     color: colors.text,
   },
-  botao: {
-    backgroundColor: colors.primary,
-    borderRadius: radius.md,
-    paddingVertical: spacing.md,
-    alignItems: 'center',
+  botaoConfirmar: {
     marginTop: spacing.lg,
   },
-  botaoPressionado: {
-    backgroundColor: colors.primaryDark,
-  },
-  botaoTexto: {
-    color: colors.textOnPrimary,
-    fontSize: fontSizes.md,
-    fontWeight: fontWeights.bold,
+  botaoVoltar: {
+    paddingHorizontal: spacing.lg,
+    marginTop: spacing.lg,
   },
   vazio: {
     flex: 1,
