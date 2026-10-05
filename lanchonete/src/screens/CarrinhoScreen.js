@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import Button from '../components/Button';
 import { useCart } from '../context/CartContext';
 import { colors, fontSizes, fontWeights, radius, spacing } from '../theme';
 import { formatarPreco } from '../utils/formatarPreco';
@@ -14,12 +15,11 @@ export default function CarrinhoScreen({ navigation }) {
         <Ionicons name="cart-outline" size={fontSizes.xxl * 2} color={colors.secondary} />
         <Text style={styles.vazioTitulo}>Seu carrinho está vazio</Text>
         <Text style={styles.vazioTexto}>Que tal escolher algo gostoso no cardápio?</Text>
-        <Pressable
+        <Button
+          titulo="Ver cardápio"
           onPress={() => navigation.navigate('ListaProdutos')}
-          style={({ pressed }) => [styles.botao, pressed && styles.botaoPressionado]}
-        >
-          <Text style={styles.botaoTexto}>Ver cardápio</Text>
-        </Pressable>
+          style={styles.botaoVazio}
+        />
       </View>
     );
   }
@@ -74,12 +74,11 @@ export default function CarrinhoScreen({ navigation }) {
           <Text style={styles.totalTexto}>Total</Text>
           <Text style={styles.totalTexto}>{formatarPreco(total)}</Text>
         </View>
-        <Pressable
+        <Button
+          titulo="Finalizar pedido"
           onPress={() => navigation.navigate('Checkout')}
-          style={({ pressed }) => [styles.botao, styles.botaoLargo, pressed && styles.botaoPressionado]}
-        >
-          <Text style={styles.botaoTexto}>Finalizar pedido</Text>
-        </Pressable>
+          style={styles.botaoFinalizar}
+        />
       </View>
     </View>
   );
@@ -158,24 +157,12 @@ const styles = StyleSheet.create({
     fontWeight: fontWeights.bold,
     color: colors.text,
   },
-  botao: {
-    backgroundColor: colors.primary,
-    borderRadius: radius.md,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    alignItems: 'center',
+  botaoFinalizar: {
     marginTop: spacing.md,
   },
-  botaoLargo: {
-    alignSelf: 'stretch',
-  },
-  botaoPressionado: {
-    backgroundColor: colors.primaryDark,
-  },
-  botaoTexto: {
-    color: colors.textOnPrimary,
-    fontSize: fontSizes.md,
-    fontWeight: fontWeights.bold,
+  botaoVazio: {
+    paddingHorizontal: spacing.lg,
+    marginTop: spacing.md,
   },
   vazio: {
     flex: 1,

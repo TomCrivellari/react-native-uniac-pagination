@@ -1,8 +1,6 @@
-import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
   Alert,
   Image,
   KeyboardAvoidingView,
@@ -11,12 +9,13 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors, fontSizes, fontWeights, radius, spacing } from '../theme';
+import Button from '../components/Button';
+import Input from '../components/Input';
+import { colors, fontSizes, fontWeights, spacing } from '../theme';
 import { validarEmail, validarSenha } from '../utils/validacao';
 
 const tamanhoLogo = 140;
@@ -38,11 +37,9 @@ export default function LoginScreen({ navigation }) {
 
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  const [senhaVisivel, setSenhaVisivel] = useState(false);
   // Os erros só aparecem depois da primeira tentativa de entrar
   const [tentouEntrar, setTentouEntrar] = useState(false);
   const [entrando, setEntrando] = useState(false);
-  const [campoEmFoco, setCampoEmFoco] = useState(null);
 
   const erroEmail = tentouEntrar ? validarEmail(email) : null;
   const erroSenha = tentouEntrar ? validarSenha(senha) : null;
@@ -91,20 +88,12 @@ export default function LoginScreen({ navigation }) {
         </View>
 
         <View style={styles.form}>
-          <Text style={styles.label}>E-mail</Text>
-          <TextInput
-            style={[
-              styles.input,
-              styles.inputSemContorno,
-              campoEmFoco === 'email' && styles.inputFocused,
-              erroEmail && styles.inputError,
-            ]}
+          <Input
+            label="E-mail"
+            erro={erroEmail}
             value={email}
             onChangeText={setEmail}
-            onFocus={() => setCampoEmFoco('email')}
-            onBlur={() => setCampoEmFoco(null)}
             placeholder="seuemail@exemplo.com"
-            placeholderTextColor={colors.textSecondary}
             keyboardType="email-address"
             autoCapitalize="none"
             autoCorrect={false}
@@ -115,66 +104,30 @@ export default function LoginScreen({ navigation }) {
             submitBehavior="submit"
             editable={!entrando}
           />
-          {erroEmail && <Text style={styles.errorText}>{erroEmail}</Text>}
 
-          <Text style={[styles.label, styles.labelSpacing]}>Senha</Text>
-          <View
-            style={[
-              styles.input,
-              styles.passwordRow,
-              campoEmFoco === 'senha' && styles.inputFocused,
-              erroSenha && styles.inputError,
-            ]}
-          >
-            <TextInput
-              ref={campoSenha}
-              style={[styles.passwordInput, styles.inputSemContorno]}
-              value={senha}
-              onChangeText={setSenha}
-              onFocus={() => setCampoEmFoco('senha')}
-              onBlur={() => setCampoEmFoco(null)}
-              placeholder="Sua senha"
-              placeholderTextColor={colors.textSecondary}
-              secureTextEntry={!senhaVisivel}
-              autoCapitalize="none"
-              autoCorrect={false}
-              autoComplete="password"
-              textContentType="password"
-              returnKeyType="done"
-              onSubmitEditing={entrar}
-              editable={!entrando}
-            />
-            <Pressable
-              onPress={() => setSenhaVisivel(!senhaVisivel)}
-              hitSlop={spacing.sm}
-              accessibilityRole="button"
-              accessibilityLabel={senhaVisivel ? 'Esconder senha' : 'Mostrar senha'}
-            >
-              <Ionicons
-                name={senhaVisivel ? 'eye-off-outline' : 'eye-outline'}
-                size={fontSizes.lg}
-                color={colors.textSecondary}
-              />
-            </Pressable>
-          </View>
-          {erroSenha && <Text style={styles.errorText}>{erroSenha}</Text>}
+          <Input
+            ref={campoSenha}
+            label="Senha"
+            erro={erroSenha}
+            secureTextEntry
+            value={senha}
+            onChangeText={setSenha}
+            placeholder="Sua senha"
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoComplete="password"
+            textContentType="password"
+            returnKeyType="done"
+            onSubmitEditing={entrar}
+            editable={!entrando}
+          />
 
-          <Pressable
-            style={({ pressed }) => [
-              styles.button,
-              pressed && styles.buttonPressed,
-              entrando && styles.buttonDisabled,
-            ]}
+          <Button
+            titulo="Entrar"
             onPress={entrar}
-            disabled={entrando}
-            accessibilityRole="button"
-          >
-            {entrando ? (
-              <ActivityIndicator color={colors.textOnPrimary} />
-            ) : (
-              <Text style={styles.buttonText}>Entrar</Text>
-            )}
-          </Pressable>
+            carregando={entrando}
+            style={styles.botaoEntrar}
+          />
 
           <View style={styles.signup}>
             <Text style={styles.signupText}>Ainda não tem conta? </Text>
@@ -223,68 +176,9 @@ const styles = StyleSheet.create({
     maxWidth: 420,
     alignSelf: 'center',
   },
-  label: {
-    fontSize: fontSizes.sm,
-    fontWeight: fontWeights.medium,
-    color: colors.text,
-    marginBottom: spacing.xs,
-  },
-  labelSpacing: {
-    marginTop: spacing.md,
-  },
-  input: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm + spacing.xs,
-    fontSize: fontSizes.md,
-    color: colors.text,
-  },
-  // No navegador, o foco é mostrado pela borda (inputFocused) em vez do contorno padrão
-  inputSemContorno: {
-    outlineStyle: 'none',
-  },
-  inputFocused: {
-    borderColor: colors.primary,
-  },
-  inputError: {
-    borderColor: colors.error,
-  },
-  passwordRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  passwordInput: {
-    flex: 1,
-    padding: 0,
-    fontSize: fontSizes.md,
-    color: colors.text,
-  },
-  errorText: {
-    fontSize: fontSizes.xs,
-    color: colors.error,
-    marginTop: spacing.xs,
-  },
-  button: {
-    backgroundColor: colors.primary,
-    borderRadius: radius.md,
-    paddingVertical: spacing.md,
-    alignItems: 'center',
-    marginTop: spacing.lg,
-  },
-  buttonPressed: {
-    backgroundColor: colors.primaryDark,
-  },
-  buttonDisabled: {
-    opacity: 0.7,
-  },
-  buttonText: {
-    fontSize: fontSizes.md,
-    fontWeight: fontWeights.bold,
-    color: colors.textOnPrimary,
+  // Somado ao marginBottom do Input, fica spacing.lg entre a senha e o botão
+  botaoEntrar: {
+    marginTop: spacing.sm,
   },
   signup: {
     flexDirection: 'row',
