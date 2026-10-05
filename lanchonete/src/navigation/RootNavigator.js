@@ -3,6 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import CheckoutScreen from '../screens/CheckoutScreen';
 import ConfirmacaoScreen from '../screens/ConfirmacaoScreen';
 import LoginScreen from '../screens/LoginScreen';
+import MenuScreen from '../screens/MenuScreen';
 import SplashScreen from '../screens/SplashScreen';
 
 import PlaceholderScreen from '../screens/PlaceholderScreen';
@@ -51,7 +52,7 @@ export default function RootNavigator() {
       {/* Telas que abrem por cima das abas */}
       <Stack.Screen
         name="ListaProdutos"
-        component={PlaceholderScreen}
+        component={MenuScreen}
         options={({ route }) => ({ title: route.params?.categoria ?? 'Cardápio' })}
       />
       <Stack.Screen

@@ -3,7 +3,6 @@ import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 
 import DrawerContent from '../components/DrawerContent';
 import { colors, fontWeights } from '../theme';
-import MenuScreen from '../screens/MenuScreen.js';
 import { abaInicial, tituloDaAba } from './abas';
 import MainTabs from './MainTabs';
 
@@ -26,36 +25,6 @@ export default function AppDrawer() {
       }}
     >
       <Drawer.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{ title: 'Início', drawerIcon: icone('home-outline') }}
-      />
-
-      {/* Telas ainda em desenvolvimento: quem terminar a sua troca o PlaceholderScreen pela tela nova */}
-      <Drawer.Screen
-        name="Menu"
-        component={MenuScreen}
-        options={{ title: 'Cardápio', drawerIcon: icone('fast-food-outline') }}
-      />
-      <Drawer.Screen
-        name="Search"
-        component={PlaceholderScreen}
-        options={{ title: 'Buscar', drawerIcon: icone('search-outline') }}
-      />
-      <Drawer.Screen
-        name="Cart"
-        component={PlaceholderScreen}
-        options={{ title: 'Carrinho', drawerIcon: icone('cart-outline') }}
-      />
-      <Drawer.Screen
-        name="Orders"
-        component={PlaceholderScreen}
-        options={{ title: 'Meus pedidos', drawerIcon: icone('receipt-outline') }}
-      />
-      <Drawer.Screen
-        name="Profile"
-        component={PlaceholderScreen}
-        options={{ title: 'Perfil', drawerIcon: icone('person-outline') }}
         name="Abas"
         component={MainTabs}
         options={({ route }) => ({

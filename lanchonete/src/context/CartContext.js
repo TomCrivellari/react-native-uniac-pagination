@@ -4,8 +4,8 @@ const CartContext = createContext();
 
 // Itens de exemplo: enquanto as telas de produto não existem, é a única forma de testar o carrinho
 const itensIniciais = [
-  { id: 1, nome: 'X-Burger', preco: 18, quantidade: 2 },
-  { id: 2, nome: 'Batata frita', preco: 12.5, quantidade: 1 },
+  { id: 1, nome: 'X-Burger', preco: 18.9, quantidade: 2 },
+  { id: 9, nome: 'Batata Frita', preco: 16.9, quantidade: 1 },
 ];
 
 export function CartProvider({ children }) {
