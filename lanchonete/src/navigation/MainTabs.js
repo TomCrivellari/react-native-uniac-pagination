@@ -4,10 +4,10 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useCart } from '../context/CartContext';
 import CarrinhoScreen from '../screens/CarrinhoScreen';
 import HomeScreen from '../screens/HomeScreen';
+import PerfilScreen from '../screens/PerfilScreen';
 import PlaceholderScreen from '../screens/PlaceholderScreen';
 import { colors, fontWeights } from '../theme';
 import { abaInicial, iconeDaAba, tituloDaAba } from './abas';
-import TelaTemporaria from './TelaTemporaria';
 
 const Tab = createBottomTabNavigator();
 
@@ -43,14 +43,7 @@ export default function MainTabs() {
         options={{ tabBarBadge: quantidadeTotal > 0 ? quantidadeTotal : undefined }}
       />
       <Tab.Screen name="Pedidos" component={PlaceholderScreen} />
-      <Tab.Screen
-        name="Perfil"
-        component={TelaTemporaria}
-        initialParams={{
-          titulo: 'Perfil',
-          atalhos: [{ texto: 'Sair', destino: 'Login', reset: true }],
-        }}
-      />
+      <Tab.Screen name="Perfil" component={PerfilScreen} />
     </Tab.Navigator>
   );
 }
