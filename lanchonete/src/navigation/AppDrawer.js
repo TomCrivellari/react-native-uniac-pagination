@@ -2,7 +2,8 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 
 import DrawerContent from '../components/DrawerContent';
-import { colors, fontWeights } from '../theme';
+import { useTema } from '../context/TemaContext';
+import { fontWeights } from '../theme';
 import { abaInicial, tituloDaAba } from './abas';
 import MainTabs from './MainTabs';
 
@@ -14,6 +15,7 @@ const Drawer = createDrawerNavigator();
  * sempre marcam o mesmo destino. Os itens ficam no DrawerContent.
  */
 export default function AppDrawer() {
+  const { colors } = useTema();
   return (
     <Drawer.Navigator
       drawerContent={(props) => <DrawerContent {...props} />}

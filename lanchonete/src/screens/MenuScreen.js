@@ -4,8 +4,9 @@ import { Image, Pressable, SectionList, StyleSheet, Text, View } from 'react-nat
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useCart } from '../context/CartContext';
+import { useEstilos, useTema } from '../context/TemaContext';
 import { categorias, produtos } from '../data/produtos';
-import { colors, fontSizes, fontWeights, radius, spacing } from '../theme';
+import { fontSizes, fontWeights, radius, spacing } from '../theme';
 import { formatarPreco } from '../utils/formatarPreco';
 
 const tamanhoFoto = 96;
@@ -53,6 +54,8 @@ function secoesDaAba(chave) {
 }
 
 export default function MenuScreen({ navigation }) {
+  const { colors } = useTema();
+  const styles = useEstilos(criarEstilos);
   const insets = useSafeAreaInsets();
   const { quantidadeTotal, total, adicionarItem } = useCart();
   const [abaAtiva, setAbaAtiva] = useState(abasCardapio[0].chave);
@@ -154,130 +157,132 @@ export default function MenuScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  abas: {
-    flexDirection: 'row',
-    backgroundColor: colors.surface,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
-  },
-  aba: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  // Ícone em cima do texto: as 3 abas cabem até em telas de 320 px
-  abaConteudo: {
-    alignItems: 'center',
-    gap: spacing.xs / 2,
-    paddingVertical: spacing.sm,
-  },
-  abaTexto: {
-    fontSize: fontSizes.sm,
-    fontWeight: fontWeights.medium,
-  },
-  abaTextoAtiva: {
-    fontWeight: fontWeights.bold,
-  },
-  abaIndicador: {
-    alignSelf: 'stretch',
-    height: spacing.xs / 2,
-    marginHorizontal: spacing.md,
-    borderTopLeftRadius: radius.sm,
-    borderTopRightRadius: radius.sm,
-  },
-  abaIndicadorAtivo: {
-    backgroundColor: colors.primary,
-  },
-  lista: {
-    padding: spacing.md,
-  },
-  secaoTitulo: {
-    fontSize: fontSizes.lg,
-    fontWeight: fontWeights.bold,
-    color: colors.text,
-    marginBottom: spacing.sm,
-  },
-  secaoTituloEspacado: {
-    marginTop: spacing.lg,
-  },
-  separador: {
-    height: spacing.sm,
-  },
-  card: {
-    flexDirection: 'row',
-    gap: spacing.md,
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.sm,
-  },
-  foto: {
-    width: tamanhoFoto,
-    height: tamanhoFoto,
-    borderRadius: radius.sm,
-  },
-  info: {
-    flex: 1,
-  },
-  nome: {
-    fontSize: fontSizes.md,
-    fontWeight: fontWeights.bold,
-    color: colors.text,
-  },
-  descricao: {
-    fontSize: fontSizes.sm,
-    color: colors.textSecondary,
-    marginTop: spacing.xs,
-  },
-  linhaPreco: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 'auto',
-    paddingTop: spacing.sm,
-  },
-  preco: {
-    fontSize: fontSizes.md,
-    fontWeight: fontWeights.bold,
-    color: colors.primary,
-  },
-  botaoAdicionar: {
-    backgroundColor: colors.primary,
-    borderRadius: radius.full,
-    padding: spacing.xs,
-  },
-  botaoPressionado: {
-    backgroundColor: colors.primaryDark,
-  },
-  rodape: {
-    backgroundColor: colors.surface,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.border,
-    paddingTop: spacing.md,
-    paddingHorizontal: spacing.md,
-  },
-  botaoCarrinho: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: colors.primary,
-    borderRadius: radius.md,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-  },
-  botaoCarrinhoInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  botaoCarrinhoTexto: {
-    color: colors.textOnPrimary,
-    fontSize: fontSizes.md,
-    fontWeight: fontWeights.bold,
-  },
-});
+function criarEstilos(colors) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    abas: {
+      flexDirection: 'row',
+      backgroundColor: colors.surface,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: colors.border,
+    },
+    aba: {
+      flex: 1,
+      alignItems: 'center',
+    },
+    // Ícone em cima do texto: as 3 abas cabem até em telas de 320 px
+    abaConteudo: {
+      alignItems: 'center',
+      gap: spacing.xs / 2,
+      paddingVertical: spacing.sm,
+    },
+    abaTexto: {
+      fontSize: fontSizes.sm,
+      fontWeight: fontWeights.medium,
+    },
+    abaTextoAtiva: {
+      fontWeight: fontWeights.bold,
+    },
+    abaIndicador: {
+      alignSelf: 'stretch',
+      height: spacing.xs / 2,
+      marginHorizontal: spacing.md,
+      borderTopLeftRadius: radius.sm,
+      borderTopRightRadius: radius.sm,
+    },
+    abaIndicadorAtivo: {
+      backgroundColor: colors.primary,
+    },
+    lista: {
+      padding: spacing.md,
+    },
+    secaoTitulo: {
+      fontSize: fontSizes.lg,
+      fontWeight: fontWeights.bold,
+      color: colors.text,
+      marginBottom: spacing.sm,
+    },
+    secaoTituloEspacado: {
+      marginTop: spacing.lg,
+    },
+    separador: {
+      height: spacing.sm,
+    },
+    card: {
+      flexDirection: 'row',
+      gap: spacing.md,
+      backgroundColor: colors.surface,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: spacing.sm,
+    },
+    foto: {
+      width: tamanhoFoto,
+      height: tamanhoFoto,
+      borderRadius: radius.sm,
+    },
+    info: {
+      flex: 1,
+    },
+    nome: {
+      fontSize: fontSizes.md,
+      fontWeight: fontWeights.bold,
+      color: colors.text,
+    },
+    descricao: {
+      fontSize: fontSizes.sm,
+      color: colors.textSecondary,
+      marginTop: spacing.xs,
+    },
+    linhaPreco: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginTop: 'auto',
+      paddingTop: spacing.sm,
+    },
+    preco: {
+      fontSize: fontSizes.md,
+      fontWeight: fontWeights.bold,
+      color: colors.primary,
+    },
+    botaoAdicionar: {
+      backgroundColor: colors.primary,
+      borderRadius: radius.full,
+      padding: spacing.xs,
+    },
+    botaoPressionado: {
+      backgroundColor: colors.primaryDark,
+    },
+    rodape: {
+      backgroundColor: colors.surface,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: colors.border,
+      paddingTop: spacing.md,
+      paddingHorizontal: spacing.md,
+    },
+    botaoCarrinho: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      backgroundColor: colors.primary,
+      borderRadius: radius.md,
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.lg,
+    },
+    botaoCarrinhoInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    botaoCarrinhoTexto: {
+      color: colors.textOnPrimary,
+      fontSize: fontSizes.md,
+      fontWeight: fontWeights.bold,
+    },
+  });
+}

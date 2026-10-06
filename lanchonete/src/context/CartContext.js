@@ -2,14 +2,9 @@ import { createContext, useContext, useState } from 'react';
 
 const CartContext = createContext();
 
-// Itens de exemplo: enquanto as telas de produto não existem, é a única forma de testar o carrinho
-const itensIniciais = [
-  { id: 1, nome: 'X-Burger', preco: 18.9, quantidade: 2 },
-  { id: 9, nome: 'Batata Frita', preco: 16.9, quantidade: 1 },
-];
-
 export function CartProvider({ children }) {
-  const [itens, setItens] = useState(itensIniciais);
+  // Começa vazio: os itens entram pelo "+" do Cardápio
+  const [itens, setItens] = useState([]);
 
   const total = itens.reduce((soma, i) => soma + i.preco * i.quantidade, 0);
   const quantidadeTotal = itens.reduce((soma, i) => soma + i.quantidade, 0);

@@ -8,12 +8,15 @@ import MenuScreen from '../screens/MenuScreen';
 import SplashScreen from '../screens/SplashScreen';
 
 import PlaceholderScreen from '../screens/PlaceholderScreen';
-import { colors, fontWeights } from '../theme';
+import { useTema } from '../context/TemaContext';
+import { fontWeights } from '../theme';
 import AppDrawer from './AppDrawer';
 
 const Stack = createNativeStackNavigator();
 
 export default function RootNavigator() {
+  // Cabeçalho vermelho nos dois temas; fundos e textos seguem o tema atual
+  const { colors } = useTema();
   return (
       <Stack.Navigator
       initialRouteName="Splash"
