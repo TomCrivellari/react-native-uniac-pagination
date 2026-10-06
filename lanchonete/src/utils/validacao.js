@@ -24,3 +24,27 @@ export function validarSenha(senha) {
   }
   return null;
 }
+
+export const tamanhoMinimoNome = 3;
+
+export function validarNome(nome) {
+  const valor = nome.trim();
+
+  if (!valor) {
+    return 'Informe o seu nome.';
+  }
+  if (valor.length < tamanhoMinimoNome) {
+    return `O nome deve ter pelo menos ${tamanhoMinimoNome} caracteres.`;
+  }
+  return null;
+}
+
+export function validarConfirmacaoSenha(senha, confirmacao) {
+  if (!confirmacao) {
+    return 'Confirme a sua senha.';
+  }
+  if (senha !== confirmacao) {
+    return 'As senhas não conferem.';
+  }
+  return null;
+}

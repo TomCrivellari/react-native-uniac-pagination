@@ -1,5 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
+import CadastroScreen from '../screens/CadastroScreen';
 import CheckoutScreen from '../screens/CheckoutScreen';
 import ConfirmacaoScreen from '../screens/ConfirmacaoScreen';
 import LoginScreen from '../screens/LoginScreen';
@@ -9,7 +10,6 @@ import SplashScreen from '../screens/SplashScreen';
 import PlaceholderScreen from '../screens/PlaceholderScreen';
 import { colors, fontWeights } from '../theme';
 import AppDrawer from './AppDrawer';
-import TelaTemporaria from './TelaTemporaria';
 
 const Stack = createNativeStackNavigator();
 
@@ -24,8 +24,6 @@ export default function RootNavigator() {
         headerBackButtonDisplayMode: 'minimal',
         contentStyle: { backgroundColor: colors.background },
       }}
-      // statusBarStyle do native-stack quebra no Expo Go (iOS), então a barra de status usa o expo-status-bar.
-      // Telas com o cabeçalho vermelho pedem ícones claros; as sem cabeçalho cuidam da própria barra.
       screenLayout={({ options, children }) => (
         <>
           {options.headerShown !== false && <StatusBar style="light" />}
@@ -38,11 +36,7 @@ export default function RootNavigator() {
       <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
       <Stack.Screen
         name="Cadastro"
-        component={TelaTemporaria}
-        initialParams={{
-          titulo: 'Cadastro',
-          atalhos: [{ texto: 'Voltar ao Login', destino: 'Login', reset: true }],
-        }}
+        component={CadastroScreen}
         options={{ title: 'Criar conta' }}
       />
 
