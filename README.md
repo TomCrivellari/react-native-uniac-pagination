@@ -33,12 +33,15 @@ npm start
 
 Depois de `npm start`, escaneie o QR Code com o Expo Go (celular e computador na **mesma rede Wi-Fi**; veja o [passo a passo](#rodando-no-celular-com-o-expo-go)) ou use os atalhos abaixo:
 
-| Comando           | O que faz                          |
-| ----------------- | ---------------------------------- |
-| `npm start`       | Abre o servidor de desenvolvimento |
-| `npm run android` | Abre no emulador Android           |
-| `npm run ios`     | Abre no simulador iOS (só macOS)   |
-| `npm run web`     | Abre no navegador                  |
+| Comando             | O que faz                                                                                       |
+| ------------------- | ----------------------------------------------------------------------------------------------- |
+| `npm start`         | Abre o servidor de desenvolvimento                                                              |
+| `npx expo start -c` | Abre o servidor **limpando o cache** (use depois de um `git pull` ou se o app parecer desatualizado) |
+| `npm run android`   | Abre no emulador Android                                                                        |
+| `npm run ios`       | Abre no simulador iOS (só macOS)                                                                |
+| `npm run web`       | Abre no navegador                                                                               |
+
+> Depois de trocar de branch ou fazer `git pull`, inicie com `npx expo start -c`. Sem limpar o cache, o Metro pode continuar mostrando telas e imagens antigas.
 
 ## Rodando no celular com o Expo Go
 
@@ -79,38 +82,69 @@ lanchonete/
     ├── screens/        # Telas do app (uma por arquivo)
     ├── components/     # Componentes reutilizáveis (botões, cards...)
     ├── navigation/     # Navegadores (menu lateral / drawer)
-    ├── context/        # Estado global (React Context)
+    ├── context/        # Estado global (React Context): CartContext (carrinho), AuthContext (contas e usuário logado) e TemaContext (tema claro/escuro)
     ├── data/           # Dados estáticos / mockados (ex.: cardápio)
     └── theme/          # Design system: cores, tipografia, espaçamentos
 ```
+
+## Contas e login (dados locais)
+
+O app não tem back-end: as contas ficam só na memória do aparelho, no `AuthContext`.
+
+1. Na tela de Login, toque em **Criar conta** e preencha nome, e-mail e senha.
+2. Ao criar a conta, o app volta para o Login com o e-mail já preenchido.
+3. Entre com a senha que você criou. O Login só aceita contas criadas no Cadastro: e-mail desconhecido ou senha errada mostram o erro no campo.
+4. Na aba **Perfil** aparecem o nome e o e-mail da conta. **Sair** (no Perfil ou no menu lateral) volta ao Login.
+5. Ainda no Perfil, cadastre seus endereços. Eles ficam guardados na conta (uma conta nova começa sem nenhum).
+6. No **Checkout**, com "Entrega" marcado, escolha um dos endereços cadastrados ou marque **Outro endereço** para digitar. Sem endereços cadastrados, aparece o aviso "Nenhum endereço cadastrado para esta conta." e o campo de texto para digitar.
+
+> As contas e os endereços somem ao recarregar o app ou fechar o Expo Go. Depois disso, é preciso criar a conta de novo. O carrinho também começa vazio: os itens entram pelo "+" do Cardápio.
+
+Para usar nas telas: `const { usuario, enderecos, criarConta, fazerLogin, fazerLogout, adicionarEndereco, removerEndereco } = useAuth();`. `usuario` é `{ nome, email }` da conta logada, ou `null`. `enderecos` é a lista `{ id, apelido, rua, bairro }` dessa conta.
 
 ## Tema (design system)
 
 Cores, tamanhos de fonte e espaçamentos ficam centralizados em `src/theme/`. **Não escreva valores fixos** (`'#E63946'`, `16`...) direto nos componentes: use o tema, assim o visual fica consistente e uma mudança de cor é feita em um lugar só.
 
-```js
-import { colors, fontSizes, fontWeights, spacing, radius } from '../theme';
+O app tem **tema claro e escuro**: a troca fica no menu lateral, em **Tema escuro** (depois de Cardápio). O app sempre abre no claro e a escolha vale até recarregar. Por isso as cores **não** são importadas direto do tema: elas vêm do `TemaContext`, e os estilos são montados com as cores do tema atual.
 
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.surface,
-    padding: spacing.md,
-    borderRadius: radius.md,
-  },
-  title: {
-    fontSize: fontSizes.lg,
-    fontWeight: fontWeights.bold,
-    color: colors.primary,
-  },
-});
+```js
+import { useEstilos, useTema } from '../context/TemaContext';
+import { fontSizes, fontWeights, radius, spacing } from '../theme';
+
+export default function MinhaTela() {
+  const styles = useEstilos(criarEstilos); // estilos com as cores do tema atual
+  const { colors } = useTema(); // só se precisar de cor fora dos estilos (ex.: ícones)
+
+  return <Ionicons name="cart" color={colors.primary} />;
+}
+
+// Continua no fim do arquivo: o StyleSheet.create fica dentro desta função
+function criarEstilos(colors) {
+  return StyleSheet.create({
+    card: {
+      backgroundColor: colors.surface,
+      padding: spacing.md,
+      borderRadius: radius.md,
+    },
+    title: {
+      fontSize: fontSizes.lg,
+      fontWeight: fontWeights.bold,
+      color: colors.primary,
+    },
+  });
+}
 ```
 
-| Arquivo         | Conteúdo                                                  |
-| --------------- | --------------------------------------------------------- |
-| `colors.js`     | Paleta (primária, secundária, fundo, texto, erro...)      |
-| `typography.js` | Tamanhos (`xs` a `xxl`) e pesos de fonte                  |
-| `spacing.js`    | Espaçamentos (`xs` a `xl`) e raios de borda               |
-| `index.js`      | Reexporta tudo, além do objeto `theme`                    |
+> A exportação `colors` de `../theme` ainda existe, mas é a paleta clara fixa: o que usar ela **não muda** com o tema escuro. Use sempre `useTema()` / `useEstilos()`.
+
+| Arquivo                   | Conteúdo                                                                           |
+| ------------------------- | ---------------------------------------------------------------------------------- |
+| `colors.js`               | Paletas `coresClaras` e `coresEscuras` (primária, fundo, texto, erro...)           |
+| `typography.js`           | Tamanhos (`xs` a `xxl`) e pesos de fonte                                           |
+| `spacing.js`              | Espaçamentos (`xs` a `xl`) e raios de borda                                        |
+| `index.js`                | Reexporta tudo, além do objeto `theme`                                             |
+| `context/TemaContext.js`  | `useTema()` (`colors`, `escuro`, `alternarTema`) e `useEstilos(criarEstilos)`      |
 
 ## Como trabalhar em grupo
 

@@ -13,8 +13,9 @@ import {
 
 import Button from '../components/Button';
 import Input from '../components/Input';
-import { enderecosIniciais, usuarioExemplo } from '../data/usuario';
-import { colors, fontSizes, fontWeights, radius, spacing } from '../theme';
+import { useAuth } from '../context/AuthContext';
+import { useEstilos, useTema } from '../context/TemaContext';
+import { fontSizes, fontWeights, radius, spacing } from '../theme';
 
 const tamanhoAvatar = 80;
 
@@ -44,10 +45,16 @@ function confirmarRemocao(endereco, aoConfirmar) {
 }
 
 export default function PerfilScreen({ navigation }) {
+  const { colors } = useTema();
+  const styles = useEstilos(criarEstilos);
   const campoRua = useRef(null);
   const campoBairro = useRef(null);
+  // Conta que entrou no Login. O "?." evita quebrar se o estado se perder (ex.: Fast Refresh)
+  // Os endereços ficam na conta, assim o Checkout também consegue usá-los
+  const { usuario, enderecos, adicionarEndereco, removerEndereco, fazerLogout } = useAuth();
+  const nome = usuario?.nome ?? '';
+  const email = usuario?.email ?? '';
 
-  const [enderecos, setEnderecos] = useState(enderecosIniciais);
   const [adicionando, setAdicionando] = useState(false);
   const [apelido, setApelido] = useState('');
   const [rua, setRua] = useState('');
@@ -74,18 +81,12 @@ export default function PerfilScreen({ navigation }) {
       return;
     }
 
-    setEnderecos((atuais) => [
-      ...atuais,
-      { id: Date.now(), apelido: apelido.trim(), rua: rua.trim(), bairro: bairro.trim() },
-    ]);
+    adicionarEndereco({ apelido, rua, bairro });
     fecharFormulario();
   }
 
-  function removerEndereco(id) {
-    setEnderecos((atuais) => atuais.filter((endereco) => endereco.id !== id));
-  }
-
   function sair() {
+    fazerLogout();
     // O Login fica no Stack principal, alguns níveis acima desta aba (aba > menu lateral > Stack)
     let alvo = navigation;
     while (alvo.getParent() && !alvo.getState().routeNames.includes('Login')) {
@@ -102,10 +103,10 @@ export default function PerfilScreen({ navigation }) {
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <View style={styles.cabecalho}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarTexto}>{iniciais(usuarioExemplo.nome)}</Text>
+            <Text style={styles.avatarTexto}>{iniciais(nome)}</Text>
           </View>
-          <Text style={styles.nome}>{usuarioExemplo.nome}</Text>
-          <Text style={styles.email}>{usuarioExemplo.email}</Text>
+          <Text style={styles.nome}>{nome}</Text>
+          <Text style={styles.email}>{email}</Text>
         </View>
 
         <Text style={styles.secao}>Meus endereços</Text>
@@ -192,88 +193,92 @@ export default function PerfilScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  content: {
-    flexGrow: 1,
-    padding: spacing.lg,
-    width: '100%',
-    maxWidth: 480,
-    alignSelf: 'center',
-  },
-  cabecalho: {
-    alignItems: 'center',
-    marginBottom: spacing.lg,
-  },
-  avatar: {
-    width: tamanhoAvatar,
-    height: tamanhoAvatar,
-    borderRadius: radius.full,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarTexto: {
-    fontSize: fontSizes.xxl,
-    fontWeight: fontWeights.bold,
-    color: colors.textOnPrimary,
-  },
-  nome: {
-    fontSize: fontSizes.xl,
-    fontWeight: fontWeights.bold,
-    color: colors.text,
-    marginTop: spacing.md,
-  },
-  email: {
-    fontSize: fontSizes.md,
-    color: colors.textSecondary,
-    marginTop: spacing.xs,
-  },
-  secao: {
-    fontSize: fontSizes.lg,
-    fontWeight: fontWeights.bold,
-    color: colors.text,
-    marginBottom: spacing.sm,
-  },
-  vazio: {
-    fontSize: fontSizes.sm,
-    color: colors.textSecondary,
-    marginBottom: spacing.sm,
-  },
-  cartaoEndereco: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
-  },
-  enderecoTextos: {
-    flex: 1,
-  },
-  enderecoApelido: {
-    fontSize: fontSizes.md,
-    fontWeight: fontWeights.bold,
-    color: colors.text,
-  },
-  enderecoLinha: {
-    fontSize: fontSizes.sm,
-    color: colors.textSecondary,
-    marginTop: spacing.xs,
-  },
-  formulario: {
-    marginTop: spacing.sm,
-  },
-  botaoEspaco: {
-    marginTop: spacing.sm,
-  },
-  sair: {
-    marginTop: spacing.xl,
-  },
-});
+function criarEstilos(colors) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    content: {
+      flexGrow: 1,
+      padding: spacing.lg,
+      width: '100%',
+      maxWidth: 480,
+      alignSelf: 'center',
+    },
+    cabecalho: {
+      alignItems: 'center',
+      marginBottom: spacing.lg,
+    },
+    avatar: {
+      width: tamanhoAvatar,
+      height: tamanhoAvatar,
+      borderRadius: radius.full,
+      backgroundColor: colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    avatarTexto: {
+      fontSize: fontSizes.xxl,
+      fontWeight: fontWeights.bold,
+      color: colors.textOnPrimary,
+    },
+    nome: {
+      fontSize: fontSizes.xl,
+      fontWeight: fontWeights.bold,
+      color: colors.text,
+      marginTop: spacing.md,
+    },
+    email: {
+      fontSize: fontSizes.md,
+      color: colors.textSecondary,
+      marginTop: spacing.xs,
+    },
+    secao: {
+      fontSize: fontSizes.lg,
+      fontWeight: fontWeights.bold,
+      color: colors.text,
+      marginBottom: spacing.sm,
+      alignSelf: 'center',
+    },
+    vazio: {
+      fontSize: fontSizes.sm,
+      color: colors.textSecondary,
+      marginBottom: spacing.sm,
+      alignSelf: 'center',
+    },
+    cartaoEndereco: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.md,
+      padding: spacing.md,
+      marginBottom: spacing.sm,
+    },
+    enderecoTextos: {
+      flex: 1,
+    },
+    enderecoApelido: {
+      fontSize: fontSizes.md,
+      fontWeight: fontWeights.bold,
+      color: colors.text,
+    },
+    enderecoLinha: {
+      fontSize: fontSizes.sm,
+      color: colors.textSecondary,
+      marginTop: spacing.xs,
+    },
+    formulario: {
+      marginTop: spacing.sm,
+    },
+    botaoEspaco: {
+      marginTop: spacing.sm,
+    },
+    sair: {
+      marginTop: spacing.xl,
+    },
+  });
+}

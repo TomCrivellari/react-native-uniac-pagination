@@ -1,14 +1,17 @@
+import { useEstilos, useTema } from '../context/TemaContext';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef } from 'react';
 import { ActivityIndicator, Animated, StyleSheet, Text, View } from 'react-native';
 
-import { colors, fontSizes, fontWeights, spacing } from '../theme';
+import { fontSizes, fontWeights, spacing } from '../theme';
 
 const tamanhoLogo = 200;
 const duracaoAnimacao = 800;
 const tempoNaTela = 2000;
 
 export default function SplashScreen({ navigation }) {
+  const { colors, escuro } = useTema();
+  const styles = useEstilos(criarEstilos);
   const opacidade = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -28,7 +31,7 @@ export default function SplashScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <StatusBar style="dark" />
+      <StatusBar style={escuro ? 'light' : 'dark'} />
 
       <Animated.View style={[styles.brand, { opacity: opacidade }]}>
         <Animated.Image
@@ -44,29 +47,31 @@ export default function SplashScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: spacing.md,
-  },
-  brand: {
-    alignItems: 'center',
-  },
-  logo: {
-    width: tamanhoLogo,
-    height: tamanhoLogo,
-  },
-  slogan: {
-    fontSize: fontSizes.lg,
-    fontWeight: fontWeights.medium,
-    color: colors.textSecondary,
-    marginTop: spacing.md,
-    textAlign: 'center',
-  },
-  loading: {
-    marginTop: spacing.xl,
-  },
-});
+function criarEstilos(colors) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: spacing.md,
+    },
+    brand: {
+      alignItems: 'center',
+    },
+    logo: {
+      width: tamanhoLogo,
+      height: tamanhoLogo,
+    },
+    slogan: {
+      fontSize: fontSizes.lg,
+      fontWeight: fontWeights.medium,
+      color: colors.textSecondary,
+      marginTop: spacing.md,
+      textAlign: 'center',
+    },
+    loading: {
+      marginTop: spacing.xl,
+    },
+  });
+}

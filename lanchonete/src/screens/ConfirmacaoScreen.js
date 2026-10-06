@@ -5,10 +5,13 @@ import { StyleSheet, Text, View } from 'react-native';
 import Button from '../components/Button';
 // Depende do CartContext (Guilherme): precisa expor limparCarrinho.
 import { useCart } from '../context/CartContext';
-import { colors, fontSizes, fontWeights, radius, spacing } from '../theme';
+import { useEstilos, useTema } from '../context/TemaContext';
+import { fontSizes, fontWeights, radius, spacing } from '../theme';
 import { formatarPreco } from '../utils/formatarPreco';
 
 export default function ConfirmacaoScreen({ navigation, route }) {
+  const { colors } = useTema();
+  const styles = useEstilos(criarEstilos);
   const { pedido } = route.params;
   const { limparCarrinho } = useCart();
   const carrinhoLimpo = useRef(false);
@@ -45,6 +48,7 @@ export default function ConfirmacaoScreen({ navigation, route }) {
 }
 
 function Linha({ rotulo, valor, destaque }) {
+  const styles = useEstilos(criarEstilos);
   return (
     <View style={styles.linha}>
       <Text style={styles.rotulo}>{rotulo}</Text>
@@ -53,58 +57,60 @@ function Linha({ rotulo, valor, destaque }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: spacing.lg,
-  },
-  titulo: {
-    fontSize: fontSizes.xl,
-    fontWeight: fontWeights.bold,
-    color: colors.text,
-    marginTop: spacing.md,
-  },
-  numero: {
-    fontSize: fontSizes.lg,
-    fontWeight: fontWeights.bold,
-    color: colors.primary,
-    marginTop: spacing.xs,
-  },
-  card: {
-    alignSelf: 'stretch',
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
-    marginTop: spacing.lg,
-  },
-  linha: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: spacing.md,
-    paddingVertical: spacing.xs,
-  },
-  rotulo: {
-    fontSize: fontSizes.md,
-    color: colors.textSecondary,
-  },
-  valor: {
-    flex: 1,
-    textAlign: 'right',
-    fontSize: fontSizes.md,
-    fontWeight: fontWeights.medium,
-    color: colors.text,
-  },
-  valorDestaque: {
-    fontSize: fontSizes.lg,
-    fontWeight: fontWeights.bold,
-  },
-  botao: {
-    alignSelf: 'stretch',
-    marginTop: spacing.lg,
-  },
-});
+function criarEstilos(colors) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: spacing.lg,
+    },
+    titulo: {
+      fontSize: fontSizes.xl,
+      fontWeight: fontWeights.bold,
+      color: colors.text,
+      marginTop: spacing.md,
+    },
+    numero: {
+      fontSize: fontSizes.lg,
+      fontWeight: fontWeights.bold,
+      color: colors.primary,
+      marginTop: spacing.xs,
+    },
+    card: {
+      alignSelf: 'stretch',
+      backgroundColor: colors.surface,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: spacing.md,
+      marginTop: spacing.lg,
+    },
+    linha: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      gap: spacing.md,
+      paddingVertical: spacing.xs,
+    },
+    rotulo: {
+      fontSize: fontSizes.md,
+      color: colors.textSecondary,
+    },
+    valor: {
+      flex: 1,
+      textAlign: 'right',
+      fontSize: fontSizes.md,
+      fontWeight: fontWeights.medium,
+      color: colors.text,
+    },
+    valorDestaque: {
+      fontSize: fontSizes.lg,
+      fontWeight: fontWeights.bold,
+    },
+    botao: {
+      alignSelf: 'stretch',
+      marginTop: spacing.lg,
+    },
+  });
+}

@@ -4,7 +4,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import Button from '../components/Button';
 import Input from '../components/Input';
-import { colors, fontSizes, fontWeights, spacing } from '../theme';
+import { useAuth } from '../context/AuthContext';
+import { useEstilos } from '../context/TemaContext';
+import { fontSizes, fontWeights, spacing } from '../theme';
 import {
   validarConfirmacaoSenha,
   validarEmail,
@@ -15,11 +17,13 @@ import {
 const tempoCadastrando = 800;
 
 export default function CadastroScreen({ navigation }) {
+  const styles = useEstilos(criarEstilos);
   const insets = useSafeAreaInsets();
   const campoEmail = useRef(null);
   const campoSenha = useRef(null);
   const campoConfirmacao = useRef(null);
   const timerCadastro = useRef(null);
+  const { criarConta } = useAuth();
 
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
@@ -28,6 +32,8 @@ export default function CadastroScreen({ navigation }) {
 
   const [tentouCadastrar, setTentouCadastrar] = useState(false);
   const [cadastrando, setCadastrando] = useState(false);
+  // Erro de e-mail já cadastrado: só se sabe depois de tentar criar a conta
+  const [erroEmailEmUso, setErroEmailEmUso] = useState(null);
 
   const erroNome = tentouCadastrar ? validarNome(nome) : null;
   const erroEmail = tentouCadastrar ? validarEmail(email) : null;
@@ -48,10 +54,22 @@ export default function CadastroScreen({ navigation }) {
       return;
     }
 
+    const erro = criarConta({ nome, email, senha });
+    if (erro) {
+      setErroEmailEmUso(erro);
+      return;
+    }
+
     setCadastrando(true);
     timerCadastro.current = setTimeout(() => {
-      navigation.reset({ index: 0, routes: [{ name: 'App' }] });
+      // Volta ao Login (que já está na pilha) com o e-mail preenchido para entrar com a conta nova
+      navigation.popTo('Login', { emailCriado: email.trim() });
     }, tempoCadastrando);
+  }
+
+  function alterarEmail(texto) {
+    setEmail(texto);
+    setErroEmailEmUso(null);
   }
 
   return (
@@ -89,8 +107,8 @@ export default function CadastroScreen({ navigation }) {
             ref={campoEmail}
             label="E-mail"
             value={email}
-            onChangeText={setEmail}
-            erro={erroEmail}
+            onChangeText={alterarEmail}
+            erro={erroEmail ?? erroEmailEmUso}
             placeholder="seuemail@exemplo.com"
             keyboardType="email-address"
             autoCapitalize="none"
@@ -161,44 +179,46 @@ export default function CadastroScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  content: {
-    flexGrow: 1,
-    paddingHorizontal: spacing.lg,
-  },
-  form: {
-    width: '100%',
-    maxWidth: 420,
-    alignSelf: 'center',
-  },
-  title: {
-    fontSize: fontSizes.xl,
-    fontWeight: fontWeights.bold,
-    color: colors.primary,
-  },
-  subtitle: {
-    fontSize: fontSizes.md,
-    color: colors.textSecondary,
-    marginTop: spacing.xs,
-    marginBottom: spacing.lg,
-  },
-  botao: {
-    marginTop: spacing.sm,
-  },
-  login: {
-    marginTop: spacing.lg,
-    alignItems: 'center',
-  },
-  loginTexto: {
-    fontSize: fontSizes.sm,
-    color: colors.textSecondary,
-  },
-  botaoLogin: {
-    alignSelf: 'stretch',
-    marginTop: spacing.sm,
-  },
-});
+function criarEstilos(colors) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    content: {
+      flexGrow: 1,
+      paddingHorizontal: spacing.lg,
+    },
+    form: {
+      width: '100%',
+      maxWidth: 420,
+      alignSelf: 'center',
+    },
+    title: {
+      fontSize: fontSizes.xl,
+      fontWeight: fontWeights.bold,
+      color: colors.primary,
+    },
+    subtitle: {
+      fontSize: fontSizes.md,
+      color: colors.textSecondary,
+      marginTop: spacing.xs,
+      marginBottom: spacing.lg,
+    },
+    botao: {
+      marginTop: spacing.sm,
+    },
+    login: {
+      marginTop: spacing.lg,
+      alignItems: 'center',
+    },
+    loginTexto: {
+      fontSize: fontSizes.sm,
+      color: colors.textSecondary,
+    },
+    botaoLogin: {
+      alignSelf: 'stretch',
+      marginTop: spacing.sm,
+    },
+  });
+}

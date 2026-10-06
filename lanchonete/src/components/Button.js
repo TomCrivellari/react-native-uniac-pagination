@@ -1,6 +1,7 @@
+import { useEstilos, useTema } from '../context/TemaContext';
 import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
 
-import { colors, fontSizes, fontWeights, radius, spacing } from '../theme';
+import { fontSizes, fontWeights, radius, spacing } from '../theme';
 
 // variante: 'primario' (vermelho cheio) ou 'secundario' (contorno vermelho)
 export default function Button({
@@ -11,6 +12,8 @@ export default function Button({
   desabilitado = false,
   style,
 }) {
+  const { colors } = useTema();
+  const styles = useEstilos(criarEstilos);
   const secundario = variante === 'secundario';
   const bloqueado = desabilitado || carregando;
 
@@ -39,40 +42,42 @@ export default function Button({
   );
 }
 
-const styles = StyleSheet.create({
-  base: {
-    borderRadius: radius.md,
-    paddingVertical: spacing.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-  },
-  primario: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  primarioPressionado: {
-    backgroundColor: colors.primaryDark,
-    borderColor: colors.primaryDark,
-  },
-  secundario: {
-    backgroundColor: colors.surface,
-    borderColor: colors.primary,
-  },
-  secundarioPressionado: {
-    backgroundColor: colors.background,
-  },
-  bloqueado: {
-    opacity: 0.7,
-  },
-  texto: {
-    fontSize: fontSizes.md,
-    fontWeight: fontWeights.bold,
-  },
-  textoPrimario: {
-    color: colors.textOnPrimary,
-  },
-  textoSecundario: {
-    color: colors.primary,
-  },
-});
+function criarEstilos(colors) {
+  return StyleSheet.create({
+    base: {
+      borderRadius: radius.md,
+      paddingVertical: spacing.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 1,
+    },
+    primario: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+    },
+    primarioPressionado: {
+      backgroundColor: colors.primaryDark,
+      borderColor: colors.primaryDark,
+    },
+    secundario: {
+      backgroundColor: colors.surface,
+      borderColor: colors.primary,
+    },
+    secundarioPressionado: {
+      backgroundColor: colors.background,
+    },
+    bloqueado: {
+      opacity: 0.7,
+    },
+    texto: {
+      fontSize: fontSizes.md,
+      fontWeight: fontWeights.bold,
+    },
+    textoPrimario: {
+      color: colors.textOnPrimary,
+    },
+    textoSecundario: {
+      color: colors.primary,
+    },
+  });
+}

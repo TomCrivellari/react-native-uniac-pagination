@@ -1,7 +1,8 @@
 import { StyleSheet, Text, View } from 'react-native';
 
 import Button from '../components/Button';
-import { colors, fontSizes, fontWeights, spacing } from '../theme';
+import { useEstilos } from '../context/TemaContext';
+import { fontSizes, fontWeights, spacing } from '../theme';
 
 /**
  * Tela provisória usada enquanto a tela real de cada colega não entra na main.
@@ -15,6 +16,7 @@ import { colors, fontSizes, fontWeights, spacing } from '../theme';
  *  - atalhos: [{ texto, destino, reset }]  (reset: true zera o histórico de navegação)
  */
 export default function TelaTemporaria({ navigation, route }) {
+  const styles = useEstilos(criarEstilos);
   const { titulo, atalhos = [] } = route.params ?? {};
 
   function ir({ destino, reset }) {
@@ -46,28 +48,30 @@ export default function TelaTemporaria({ navigation, route }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: spacing.md,
-  },
-  title: {
-    fontSize: fontSizes.xl,
-    fontWeight: fontWeights.bold,
-    color: colors.text,
-  },
-  subtitle: {
-    fontSize: fontSizes.md,
-    color: colors.textSecondary,
-    marginTop: spacing.sm,
-    marginBottom: spacing.lg,
-    textAlign: 'center',
-  },
-  botao: {
-    paddingHorizontal: spacing.lg,
-    marginTop: spacing.sm,
-  },
-});
+function criarEstilos(colors) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: spacing.md,
+    },
+    title: {
+      fontSize: fontSizes.xl,
+      fontWeight: fontWeights.bold,
+      color: colors.text,
+    },
+    subtitle: {
+      fontSize: fontSizes.md,
+      color: colors.textSecondary,
+      marginTop: spacing.sm,
+      marginBottom: spacing.lg,
+      textAlign: 'center',
+    },
+    botao: {
+      paddingHorizontal: spacing.lg,
+      marginTop: spacing.sm,
+    },
+  });
+}
