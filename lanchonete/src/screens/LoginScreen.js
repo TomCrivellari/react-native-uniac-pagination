@@ -60,8 +60,8 @@ export default function LoginScreen({ navigation }) {
   }
 
   function criarConta() {
-    avisar('Em breve', 'A tela de cadastro ainda está sendo feita pelo grupo.');
-  }
+    navigation.navigate('Cadastro');
+  } 
 
   return (
     <KeyboardAvoidingView
