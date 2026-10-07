@@ -1,6 +1,14 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { Image, Pressable, SectionList, StyleSheet, Text, View } from 'react-native';
+import {
+  Image,
+  Pressable,
+  SectionList,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useCart } from '../context/CartContext';
@@ -59,8 +67,21 @@ export default function MenuScreen({ navigation }) {
   const insets = useSafeAreaInsets();
   const { quantidadeTotal, total, adicionarItem } = useCart();
   const [abaAtiva, setAbaAtiva] = useState(abasCardapio[0].chave);
+  const [busca, setBusca] = useState('');
 
-  const secoes = secoesDaAba(abaAtiva);
+  const termoBusca = busca.trim().toLocaleLowerCase();
+  const secoes = secoesDaAba(abaAtiva)
+    .map((secao) => ({
+      ...secao,
+      data: termoBusca
+        ? secao.data.filter(
+            (produto) =>
+              produto.nome.toLocaleLowerCase().includes(termoBusca) ||
+              produto.descricao.toLocaleLowerCase().includes(termoBusca)
+          )
+        : secao.data,
+    }))
+    .filter((secao) => secao.data.length > 0);
   // Aba com uma categoria só não repete o nome dela acima da lista
   const mostrarTitulos = secoes.length > 1;
 
@@ -71,6 +92,31 @@ export default function MenuScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
+      <View style={styles.buscaContainer}>
+        <Ionicons name="search-outline" size={fontSizes.lg} color={colors.textSecondary} />
+        <TextInput
+          value={busca}
+          onChangeText={setBusca}
+          placeholder="Pesquisar no cardápio"
+          placeholderTextColor={colors.textSecondary}
+          style={styles.buscaInput}
+          autoCapitalize="none"
+          autoCorrect={false}
+          returnKeyType="search"
+          accessibilityLabel="Pesquisar produtos no cardápio"
+        />
+        {busca.length > 0 && (
+          <Pressable
+            onPress={() => setBusca('')}
+            hitSlop={spacing.sm}
+            accessibilityRole="button"
+            accessibilityLabel="Limpar pesquisa"
+          >
+            <Ionicons name="close-circle" size={fontSizes.lg} color={colors.textSecondary} />
+          </Pressable>
+        )}
+      </View>
+
       <View style={styles.abas} accessibilityRole="tablist">
         {abasCardapio.map((aba) => {
           const ativa = aba.chave === abaAtiva;
@@ -109,6 +155,15 @@ export default function MenuScreen({ navigation }) {
               {section.titulo}
             </Text>
           ) : null
+        }
+        ListEmptyComponent={
+          <View style={styles.semResultados}>
+            <Ionicons name="search-outline" size={fontSizes.xxl * 2} color={colors.secondary} />
+            <Text style={styles.semResultadosTitulo}>Nenhum produto encontrado</Text>
+            <Text style={styles.semResultadosTexto}>
+              Tente pesquisar por outro nome ou descrição.
+            </Text>
+          </View>
         }
         renderItem={({ item }) => (
           <View style={styles.card}>
@@ -169,6 +224,22 @@ function criarEstilos(colors) {
       borderBottomWidth: StyleSheet.hairlineWidth,
       borderBottomColor: colors.border,
     },
+    buscaContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      backgroundColor: colors.surface,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: colors.border,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+    },
+    buscaInput: {
+      flex: 1,
+      color: colors.text,
+      fontSize: fontSizes.md,
+      paddingVertical: spacing.xs,
+    },
     aba: {
       flex: 1,
       alignItems: 'center',
@@ -198,6 +269,24 @@ function criarEstilos(colors) {
     },
     lista: {
       padding: spacing.md,
+    },
+    semResultados: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: spacing.xl,
+    },
+    semResultadosTitulo: {
+      fontSize: fontSizes.lg,
+      fontWeight: fontWeights.bold,
+      color: colors.text,
+      marginTop: spacing.md,
+      textAlign: 'center',
+    },
+    semResultadosTexto: {
+      fontSize: fontSizes.md,
+      color: colors.textSecondary,
+      marginTop: spacing.sm,
+      textAlign: 'center',
     },
     secaoTitulo: {
       fontSize: fontSizes.lg,
