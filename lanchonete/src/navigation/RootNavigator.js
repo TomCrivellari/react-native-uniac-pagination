@@ -4,10 +4,10 @@ import CadastroScreen from '../screens/CadastroScreen';
 import CheckoutScreen from '../screens/CheckoutScreen';
 import ConfirmacaoScreen from '../screens/ConfirmacaoScreen';
 import LoginScreen from '../screens/LoginScreen';
-import MenuScreen from '../screens/MenuScreen';
+import DetalhesProdutoScreen from '../screens/DetalhesProdutoScreen';
+import ListaProdutosScreen from '../screens/ListaProdutosScreen';
 import SplashScreen from '../screens/SplashScreen';
 
-import PlaceholderScreen from '../screens/PlaceholderScreen';
 import { useTema } from '../context/TemaContext';
 import { fontWeights } from '../theme';
 import AppDrawer from './AppDrawer';
@@ -49,13 +49,13 @@ export default function RootNavigator() {
       {/* Telas que abrem por cima das abas */}
       <Stack.Screen
         name="ListaProdutos"
-        component={MenuScreen}
+        component={ListaProdutosScreen}
         options={({ route }) => ({ title: route.params?.categoria ?? 'Cardápio' })}
       />
       <Stack.Screen
         name="DetalhesProduto"
-        component={PlaceholderScreen}
-        options={{ title: 'Detalhes' }}
+        component={DetalhesProdutoScreen}
+        options={{ title: 'Detalhes do produto' }}
       />
       <Stack.Screen
         name="Checkout"

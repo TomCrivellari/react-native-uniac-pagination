@@ -5,7 +5,7 @@ import { useCart } from '../context/CartContext';
 import { useTema } from '../context/TemaContext';
 import CarrinhoScreen from '../screens/CarrinhoScreen';
 import HomeScreen from '../screens/HomeScreen';
-import MenuScreen from '../screens/MenuScreen';
+import ListaProdutosScreen from '../screens/ListaProdutosScreen';
 import PerfilScreen from '../screens/PerfilScreen';
 import PedidosScreen from '../screens/PedidosScreen';
 import { fontWeights } from '../theme';
@@ -39,7 +39,7 @@ export default function MainTabs() {
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Busca" component={MenuScreen} />
+      <Tab.Screen name="Busca" component={ListaProdutosScreen} />
       <Tab.Screen
         name="Carrinho"
         component={CarrinhoScreen}

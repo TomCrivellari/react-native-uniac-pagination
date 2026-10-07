@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { useEstilos, useTema } from '../context/TemaContext';
 import { imagensProdutos } from '../data/imagens';
-import { colors, fontSizes, fontWeights, radius, spacing } from '../theme';
+import { fontSizes, fontWeights, radius, spacing } from '../theme';
 import { formatarPreco } from '../utils/formatarPreco';
 
 const tamanhoFoto = 96;
@@ -15,6 +16,9 @@ const tamanhoFoto = 96;
  * - onPress: chamado ao tocar no card (ex.: abrir os detalhes). Opcional.
  */
 export default function ProductCard({ produto, onAdicionar, onPress }) {
+  const { colors } = useTema();
+  const styles = useEstilos(criarEstilos);
+
   return (
     <Pressable
       onPress={onPress}
@@ -48,52 +52,54 @@ export default function ProductCard({ produto, onAdicionar, onPress }) {
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    flexDirection: 'row',
-    gap: spacing.md,
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.sm,
-  },
-  foto: {
-    width: tamanhoFoto,
-    height: tamanhoFoto,
-    borderRadius: radius.sm,
-  },
-  info: {
-    flex: 1,
-  },
-  nome: {
-    fontSize: fontSizes.md,
-    fontWeight: fontWeights.bold,
-    color: colors.text,
-  },
-  descricao: {
-    fontSize: fontSizes.sm,
-    color: colors.textSecondary,
-    marginTop: spacing.xs,
-  },
-  linhaPreco: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 'auto',
-    paddingTop: spacing.sm,
-  },
-  preco: {
-    fontSize: fontSizes.md,
-    fontWeight: fontWeights.bold,
-    color: colors.primary,
-  },
-  botaoAdicionar: {
-    backgroundColor: colors.primary,
-    borderRadius: radius.full,
-    padding: spacing.xs,
-  },
-  botaoPressionado: {
-    backgroundColor: colors.primaryDark,
-  },
-});
+function criarEstilos(colors) {
+  return StyleSheet.create({
+    card: {
+      flexDirection: 'row',
+      gap: spacing.md,
+      backgroundColor: colors.surface,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: spacing.sm,
+    },
+    foto: {
+      width: tamanhoFoto,
+      height: tamanhoFoto,
+      borderRadius: radius.sm,
+    },
+    info: {
+      flex: 1,
+    },
+    nome: {
+      fontSize: fontSizes.md,
+      fontWeight: fontWeights.bold,
+      color: colors.text,
+    },
+    descricao: {
+      fontSize: fontSizes.sm,
+      color: colors.textSecondary,
+      marginTop: spacing.xs,
+    },
+    linhaPreco: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginTop: 'auto',
+      paddingTop: spacing.sm,
+    },
+    preco: {
+      fontSize: fontSizes.md,
+      fontWeight: fontWeights.bold,
+      color: colors.primary,
+    },
+    botaoAdicionar: {
+      backgroundColor: colors.primary,
+      borderRadius: radius.full,
+      padding: spacing.xs,
+    },
+    botaoPressionado: {
+      backgroundColor: colors.primaryDark,
+    },
+  });
+}

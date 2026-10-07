@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import Header from '../components/Header';
 import { usePedidos } from '../context/PedidosContext';
 import { useEstilos, useTema } from '../context/TemaContext';
 import { fontSizes, fontWeights, radius, spacing } from '../theme';
@@ -29,7 +30,12 @@ export default function PedidosScreen() {
       contentContainerStyle={styles.conteudo}
       showsVerticalScrollIndicator={false}
     >
-      <Text style={styles.introducao}>Confira o resumo dos seus pedidos anteriores.</Text>
+      <Header
+        titulo="Meus pedidos"
+        subtitulo="Confira o resumo dos seus pedidos anteriores."
+        icone="receipt"
+        style={styles.introducao}
+      />
 
       {pedidos.map((pedido) => (
         <View key={pedido.id} style={styles.card}>
@@ -101,8 +107,6 @@ function criarEstilos(colors) {
       paddingBottom: spacing.xl,
     },
     introducao: {
-      fontSize: fontSizes.md,
-      color: colors.textSecondary,
       marginBottom: spacing.sm,
     },
     card: {

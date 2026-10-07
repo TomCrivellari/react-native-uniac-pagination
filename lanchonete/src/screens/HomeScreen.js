@@ -1,24 +1,63 @@
-import { useEstilos } from '../context/TemaContext';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import Button from '../components/Button';
+import Header from '../components/Header';
+import ProductCard from '../components/ProductCard';
+import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
+import { useEstilos } from '../context/TemaContext';
+import { produtos } from '../data/produtos';
 import { fontSizes, fontWeights, spacing } from '../theme';
 
-const tamanhoLogo = 200;
+const tamanhoLogo = 120;
+const quantidadeDestaques = 4;
 
-export default function HomeScreen() {
+// Os primeiros produtos disponíveis do cardápio
+const destaques = produtos.filter((p) => p.disponivel).slice(0, quantidadeDestaques);
+
+export default function HomeScreen({ navigation }) {
   const styles = useEstilos(criarEstilos);
+  const { usuario } = useAuth();
+  const { adicionarItem } = useCart();
+
+  const primeiroNome = usuario?.nome?.trim().split(' ')[0];
+
   return (
-    <View style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.conteudo}
+      showsVerticalScrollIndicator={false}
+    >
       <Image
         source={require('../../assets/logo.png')}
         style={styles.logo}
         accessibilityLabel="O Fomegão"
       />
-      <Text style={styles.title}>Bem-vindo ao Fomegão!</Text>
-      <Text style={styles.subtitle}>
-        Navegue pelas abas abaixo ou pelo menu no canto superior esquerdo.
-      </Text>
-    </View>
+
+      <Header
+        titulo={primeiroNome ? `Olá, ${primeiroNome}!` : 'Bem-vindo ao Fomegão!'}
+        subtitulo="O que vai ser hoje?"
+        icone="restaurant"
+      />
+
+      <Text style={styles.secao}>Destaques do cardápio</Text>
+      <View style={styles.lista}>
+        {destaques.map((produto) => (
+          <ProductCard
+            key={produto.id}
+            produto={produto}
+            onAdicionar={adicionarItem}
+            onPress={() => navigation.navigate('DetalhesProduto', { produtoId: produto.id })}
+          />
+        ))}
+      </View>
+
+      <Button
+        titulo="Ver cardápio completo"
+        onPress={() => navigation.navigate('ListaProdutos')}
+        style={styles.botao}
+      />
+    </ScrollView>
   );
 }
 
@@ -27,25 +66,28 @@ function criarEstilos(colors) {
     container: {
       flex: 1,
       backgroundColor: colors.background,
-      alignItems: 'center',
-      justifyContent: 'center',
+    },
+    conteudo: {
       padding: spacing.md,
     },
     logo: {
       width: tamanhoLogo,
       height: tamanhoLogo,
+      alignSelf: 'center',
+      marginBottom: spacing.md,
     },
-    title: {
-      fontSize: fontSizes.xl,
+    secao: {
+      fontSize: fontSizes.lg,
       fontWeight: fontWeights.bold,
-      color: colors.primary,
+      color: colors.text,
       marginTop: spacing.lg,
+      marginBottom: spacing.sm,
     },
-    subtitle: {
-      fontSize: fontSizes.md,
-      color: colors.textSecondary,
-      marginTop: spacing.sm,
-      textAlign: 'center',
+    lista: {
+      gap: spacing.sm,
+    },
+    botao: {
+      marginTop: spacing.lg,
     },
   });
 }
