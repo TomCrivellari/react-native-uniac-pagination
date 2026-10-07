@@ -7,6 +7,7 @@ import CarrinhoScreen from '../screens/CarrinhoScreen';
 import HomeScreen from '../screens/HomeScreen';
 import PerfilScreen from '../screens/PerfilScreen';
 import PlaceholderScreen from '../screens/PlaceholderScreen';
+import PedidosScreen from '../screens/PedidosScreen';
 import { fontWeights } from '../theme';
 import { abaInicial, iconeDaAba, tituloDaAba } from './abas';
 
@@ -44,7 +45,7 @@ export default function MainTabs() {
         component={CarrinhoScreen}
         options={{ tabBarBadge: quantidadeTotal > 0 ? quantidadeTotal : undefined }}
       />
-      <Tab.Screen name="Pedidos" component={PlaceholderScreen} />
+      <Tab.Screen name="Pedidos" component={PedidosScreen} />
       <Tab.Screen name="Perfil" component={PerfilScreen} />
     </Tab.Navigator>
   );
