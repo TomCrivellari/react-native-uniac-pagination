@@ -1,6 +1,8 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
-import { colors, fontSizes, fontWeights, radius, spacing } from '../theme';
+import Button from '../components/Button';
+import { useEstilos } from '../context/TemaContext';
+import { fontSizes, fontWeights, spacing } from '../theme';
 
 /**
  * Tela provisória usada enquanto a tela real de cada colega não entra na main.
@@ -14,6 +16,7 @@ import { colors, fontSizes, fontWeights, radius, spacing } from '../theme';
  *  - atalhos: [{ texto, destino, reset }]  (reset: true zera o histórico de navegação)
  */
 export default function TelaTemporaria({ navigation, route }) {
+  const styles = useEstilos(criarEstilos);
   const { titulo, atalhos = [] } = route.params ?? {};
 
   function ir({ destino, reset }) {
@@ -34,51 +37,41 @@ export default function TelaTemporaria({ navigation, route }) {
       <Text style={styles.subtitle}>Tela em desenvolvimento pelo grupo.</Text>
 
       {atalhos.map((atalho) => (
-        <Pressable
+        <Button
           key={atalho.texto}
+          titulo={atalho.texto}
           onPress={() => ir(atalho)}
-          style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
-        >
-          <Text style={styles.buttonText}>{atalho.texto}</Text>
-        </Pressable>
+          style={styles.botao}
+        />
       ))}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: spacing.md,
-  },
-  title: {
-    fontSize: fontSizes.xl,
-    fontWeight: fontWeights.bold,
-    color: colors.text,
-  },
-  subtitle: {
-    fontSize: fontSizes.md,
-    color: colors.textSecondary,
-    marginTop: spacing.sm,
-    marginBottom: spacing.lg,
-    textAlign: 'center',
-  },
-  button: {
-    backgroundColor: colors.primary,
-    paddingVertical: spacing.sm + spacing.xs,
-    paddingHorizontal: spacing.lg,
-    borderRadius: radius.md,
-    marginTop: spacing.sm,
-  },
-  buttonPressed: {
-    backgroundColor: colors.primaryDark,
-  },
-  buttonText: {
-    color: colors.textOnPrimary,
-    fontSize: fontSizes.md,
-    fontWeight: fontWeights.bold,
-  },
-});
+function criarEstilos(colors) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: spacing.md,
+    },
+    title: {
+      fontSize: fontSizes.xl,
+      fontWeight: fontWeights.bold,
+      color: colors.text,
+    },
+    subtitle: {
+      fontSize: fontSizes.md,
+      color: colors.textSecondary,
+      marginTop: spacing.sm,
+      marginBottom: spacing.lg,
+      textAlign: 'center',
+    },
+    botao: {
+      paddingHorizontal: spacing.lg,
+      marginTop: spacing.sm,
+    },
+  });
+}

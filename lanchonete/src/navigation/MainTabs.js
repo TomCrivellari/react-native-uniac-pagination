@@ -2,12 +2,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import { useCart } from '../context/CartContext';
+import { useTema } from '../context/TemaContext';
 import CarrinhoScreen from '../screens/CarrinhoScreen';
 import HomeScreen from '../screens/HomeScreen';
+import PerfilScreen from '../screens/PerfilScreen';
 import PlaceholderScreen from '../screens/PlaceholderScreen';
-import { colors, fontWeights } from '../theme';
+import { fontWeights } from '../theme';
 import { abaInicial, iconeDaAba, tituloDaAba } from './abas';
-import TelaTemporaria from './TelaTemporaria';
 
 const Tab = createBottomTabNavigator();
 
@@ -18,6 +19,7 @@ const Tab = createBottomTabNavigator();
  * Para entregar a sua tela: troque o `component` da aba pela tela nova.
  */
 export default function MainTabs() {
+  const { colors } = useTema();
   const { quantidadeTotal } = useCart();
 
   return (
@@ -43,14 +45,7 @@ export default function MainTabs() {
         options={{ tabBarBadge: quantidadeTotal > 0 ? quantidadeTotal : undefined }}
       />
       <Tab.Screen name="Pedidos" component={PlaceholderScreen} />
-      <Tab.Screen
-        name="Perfil"
-        component={TelaTemporaria}
-        initialParams={{
-          titulo: 'Perfil',
-          atalhos: [{ texto: 'Sair', destino: 'Login', reset: true }],
-        }}
-      />
+      <Tab.Screen name="Perfil" component={PerfilScreen} />
     </Tab.Navigator>
   );
 }
