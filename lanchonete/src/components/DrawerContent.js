@@ -79,7 +79,7 @@ export default function DrawerContent({ navigation, state }) {
       </View>
 
       <DrawerContentScrollView contentContainerStyle={styles.items}>
-        {abas.map((aba) => (
+        {abas.filter((aba) => aba.nome !== 'Busca').map((aba) => (
           <DrawerItem
             key={aba.nome}
             label={rotulo(aba.titulo, aba.nome === 'Carrinho' ? quantidadeTotal : 0)}
