@@ -5,8 +5,9 @@ import { useCart } from '../context/CartContext';
 import { useTema } from '../context/TemaContext';
 import CarrinhoScreen from '../screens/CarrinhoScreen';
 import HomeScreen from '../screens/HomeScreen';
+import MenuScreen from '../screens/MenuScreen';
 import PerfilScreen from '../screens/PerfilScreen';
-import PlaceholderScreen from '../screens/PlaceholderScreen';
+import PedidosScreen from '../screens/PedidosScreen';
 import { fontWeights } from '../theme';
 import { abaInicial, iconeDaAba, tituloDaAba } from './abas';
 
@@ -38,13 +39,13 @@ export default function MainTabs() {
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Busca" component={PlaceholderScreen} />
+      <Tab.Screen name="Busca" component={MenuScreen} />
       <Tab.Screen
         name="Carrinho"
         component={CarrinhoScreen}
         options={{ tabBarBadge: quantidadeTotal > 0 ? quantidadeTotal : undefined }}
       />
-      <Tab.Screen name="Pedidos" component={PlaceholderScreen} />
+      <Tab.Screen name="Pedidos" component={PedidosScreen} />
       <Tab.Screen name="Perfil" component={PerfilScreen} />
     </Tab.Navigator>
   );

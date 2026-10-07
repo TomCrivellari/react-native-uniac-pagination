@@ -17,6 +17,7 @@ import { useAuth } from '../context/AuthContext';
 // Depende do CartContext (Guilherme). Precisa expor: itens, total e limparCarrinho.
 // Cada item precisa ter: nome e quantidade.
 import { useCart } from '../context/CartContext';
+import { usePedidos } from '../context/PedidosContext';
 import { useEstilos, useTema } from '../context/TemaContext';
 import { fontSizes, fontWeights, radius, spacing } from '../theme';
 import { formatarPreco } from '../utils/formatarPreco';
@@ -41,6 +42,7 @@ export default function CheckoutScreen({ navigation }) {
   const { colors } = useTema();
   const styles = useEstilos(criarEstilos);
   const { itens, total } = useCart();
+  const { registrarPedido } = usePedidos();
   // Endereços cadastrados no Perfil da conta logada
   const { enderecos } = useAuth();
 
@@ -73,6 +75,7 @@ export default function CheckoutScreen({ navigation }) {
 
     const pedido = {
       numero: Math.floor(1000 + Math.random() * 9000),
+      itens: itens.map((item) => ({ ...item })),
       tempoEstimado: tiposEntrega.find((t) => t.id === tipo).tempo,
       tipo: entrega ? 'Entrega' : 'Retirada',
       endereco: entrega
@@ -83,6 +86,8 @@ export default function CheckoutScreen({ navigation }) {
       pagamento: formasPagamento.find((f) => f.id === pagamento).rotulo,
       total: totalFinal,
     };
+
+    registrarPedido(pedido);
 
     // reset: tira o Checkout do histórico, assim o "voltar" não reabre um carrinho já limpo
     navigation.reset({
