@@ -15,6 +15,7 @@ import Button from '../components/Button';
 import Input from '../components/Input';
 import { useAuth } from '../context/AuthContext';
 import { useEstilos, useTema } from '../context/TemaContext';
+import { useCep } from '../hooks/useCep';
 import { fontSizes, fontWeights, radius, spacing } from '../theme';
 
 const tamanhoAvatar = 80;
@@ -47,6 +48,7 @@ function confirmarRemocao(endereco, aoConfirmar) {
 export default function PerfilScreen({ navigation }) {
   const { colors } = useTema();
   const styles = useEstilos(criarEstilos);
+  const campoCep = useRef(null);
   const campoRua = useRef(null);
   const campoBairro = useRef(null);
   // Conta que entrou no Login. O "?." evita quebrar se o estado se perder (ex.: Fast Refresh)
@@ -62,6 +64,13 @@ export default function PerfilScreen({ navigation }) {
   // Os erros só aparecem depois da primeira tentativa de salvar (igual ao Login)
   const [tentouSalvar, setTentouSalvar] = useState(false);
 
+  // Achou o CEP: preenche rua e bairro e deixa o cursor no fim da rua pra digitar o número
+  const { cep, alterarCep, limparCep, buscando, erro: erroCep, encontrado } = useCep((endereco) => {
+    setRua(endereco.rua ? `${endereco.rua}, ` : '');
+    setBairro(endereco.bairro);
+    campoRua.current?.focus();
+  });
+
   const erroApelido = tentouSalvar && !apelido.trim() ? 'Dê um nome ao endereço (ex.: Casa).' : null;
   const erroRua = tentouSalvar && !rua.trim() ? 'Informe a rua e o número.' : null;
   const erroBairro = tentouSalvar && !bairro.trim() ? 'Informe o bairro.' : null;
@@ -72,6 +81,7 @@ export default function PerfilScreen({ navigation }) {
     setRua('');
     setBairro('');
     setTentouSalvar(false);
+    limparCep();
   }
 
   function salvarEndereco() {
@@ -81,8 +91,23 @@ export default function PerfilScreen({ navigation }) {
       return;
     }
 
-    adicionarEndereco({ apelido, rua, bairro });
+    // cidade e UF vêm do CEP e ajudam o Checkout a achar o endereço no mapa pra calcular a entrega
+    adicionarEndereco({
+      apelido,
+      rua,
+      bairro,
+      cep: encontrado?.cep,
+      cidade: encontrado?.cidade,
+      uf: encontrado?.uf,
+    });
     fecharFormulario();
+  }
+
+  let dicaCep = 'Digite o CEP que a gente preenche a rua e o bairro.';
+  if (buscando) {
+    dicaCep = 'Buscando o CEP...';
+  } else if (encontrado) {
+    dicaCep = `${encontrado.cidade}/${encontrado.uf}`;
   }
 
   function sair() {
@@ -121,7 +146,11 @@ export default function PerfilScreen({ navigation }) {
             <View style={styles.enderecoTextos}>
               <Text style={styles.enderecoApelido}>{endereco.apelido}</Text>
               <Text style={styles.enderecoLinha}>{endereco.rua}</Text>
-              <Text style={styles.enderecoLinha}>{endereco.bairro}</Text>
+              <Text style={styles.enderecoLinha}>
+                {endereco.cidade
+                  ? `${endereco.bairro} - ${endereco.cidade}/${endereco.uf}`
+                  : endereco.bairro}
+              </Text>
             </View>
             <Pressable
               onPress={() => confirmarRemocao(endereco, () => removerEndereco(endereco.id))}
@@ -144,9 +173,24 @@ export default function PerfilScreen({ navigation }) {
               placeholder="Casa, Trabalho..."
               autoCapitalize="words"
               returnKeyType="next"
-              onSubmitEditing={() => campoRua.current?.focus()}
+              onSubmitEditing={() => campoCep.current?.focus()}
               submitBehavior="submit"
             />
+            <Input
+              ref={campoCep}
+              label="CEP"
+              value={cep}
+              onChangeText={alterarCep}
+              erro={erroCep}
+              placeholder="00000-000"
+              keyboardType="number-pad"
+              maxLength={9}
+              returnKeyType="next"
+              onSubmitEditing={() => campoRua.current?.focus()}
+              submitBehavior="submit"
+              style={erroCep ? undefined : styles.campoCep}
+            />
+            {!erroCep && <Text style={styles.dicaCep}>{dicaCep}</Text>}
             <Input
               ref={campoRua}
               label="Rua e número"
@@ -273,6 +317,15 @@ function criarEstilos(colors) {
     },
     formulario: {
       marginTop: spacing.sm,
+    },
+    // a dica fica coladinha embaixo do CEP, no lugar onde aparece o erro
+    campoCep: {
+      marginBottom: spacing.xs,
+    },
+    dicaCep: {
+      fontSize: fontSizes.xs,
+      color: colors.textSecondary,
+      marginBottom: spacing.md,
     },
     botaoEspaco: {
       marginTop: spacing.sm,

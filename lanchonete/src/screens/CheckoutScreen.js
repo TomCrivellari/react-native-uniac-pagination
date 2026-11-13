@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -19,10 +19,13 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { usePedidos } from '../context/PedidosContext';
 import { useEstilos, useTema } from '../context/TemaContext';
+import { useCep } from '../hooks/useCep';
+import { calcularEntrega, formatarDistancia, regras } from '../services/entrega';
 import { fontSizes, fontWeights, radius, spacing } from '../theme';
 import { formatarPreco } from '../utils/formatarPreco';
 
-const TAXA_ENTREGA = 5;
+// espera a pessoa parar de digitar antes de consultar o mapa
+const esperaParaCalcular = 800;
 
 const tiposEntrega = [
   { id: 'entrega', rotulo: 'Entrega', icone: 'bicycle-outline', tempo: '40 a 50 min' },
@@ -49,19 +52,126 @@ export default function CheckoutScreen({ navigation }) {
   const [tipo, setTipo] = useState('entrega');
   const [enderecoEscolhido, setEnderecoEscolhido] = useState(enderecos[0]?.id ?? OUTRO_ENDERECO);
   const [endereco, setEndereco] = useState('');
+  const [numero, setNumero] = useState('');
   const [pagamento, setPagamento] = useState(null);
   const [erros, setErros] = useState({});
+  // { status: 'vazio' | 'calculando' | 'pronto' | 'erro', distanciaKm, taxa, foraDaArea }
+  const [calculo, setCalculo] = useState({ status: 'vazio' });
+
+  const campoNumero = useRef(null);
+  // "Outro endereço": se a pessoa digitar o CEP, só falta o número
+  const {
+    cep,
+    alterarCep,
+    buscando: buscandoCep,
+    erro: erroCep,
+    encontrado,
+  } = useCep(() => campoNumero.current?.focus());
 
   const entrega = tipo === 'entrega';
-  const taxa = entrega ? TAXA_ENTREGA : 0;
-  const totalFinal = total + taxa;
   // Sem endereço salvo escolhido, vale o que foi digitado
   const enderecoSalvo = enderecos.find((e) => e.id === enderecoEscolhido);
+  const destino = montarDestino();
+
+  // Endereço que vai no pedido (texto) e o que vai pro mapa (busca), ou null se ainda falta coisa
+  function montarDestino() {
+    if (enderecoSalvo) {
+      return { texto: `${enderecoSalvo.rua}, ${enderecoSalvo.bairro}`, busca: enderecoSalvo };
+    }
+
+    if (encontrado) {
+      if (!numero.trim()) {
+        return null;
+      }
+      const rua = [encontrado.rua, numero.trim()].filter(Boolean).join(', ');
+      return { texto: `${rua} - ${encontrado.bairro}`, busca: { ...encontrado, rua } };
+    }
+
+    if (endereco.trim().length < 5) {
+      return null;
+    }
+    return { texto: endereco.trim(), busca: { rua: endereco.trim() } };
+  }
+
+  // Muda só quando muda o endereço de verdade, assim o efeito não roda a cada render
+  const chaveDestino =
+    entrega && destino
+      ? JSON.stringify({
+          rua: destino.busca.rua,
+          bairro: destino.busca.bairro,
+          cidade: destino.busca.cidade,
+          uf: destino.busca.uf,
+          cep: destino.busca.cep,
+        })
+      : null;
+
+  useEffect(() => {
+    if (!chaveDestino) {
+      setCalculo({ status: 'vazio' });
+      return;
+    }
+
+    let ativo = true;
+    setCalculo({ status: 'calculando' });
+
+    const timer = setTimeout(async () => {
+      try {
+        const resultado = await calcularEntrega(JSON.parse(chaveDestino));
+        if (ativo) {
+          setCalculo({ status: 'pronto', ...resultado });
+        }
+      } catch {
+        if (ativo) {
+          setCalculo({ status: 'erro' });
+        }
+      }
+    }, esperaParaCalcular);
+
+    return () => {
+      ativo = false;
+      clearTimeout(timer);
+    };
+  }, [chaveDestino]);
+
+  const calculando = entrega && calculo.status === 'calculando';
+  const foraDaArea = entrega && calculo.status === 'pronto' && calculo.foraDaArea;
+
+  // Se o mapa falhar a gente não trava o pedido: cobra a taxa mínima.
+  // Fora da área não soma nada, o pedido nem pode ser confirmado assim
+  let taxa = 0;
+  if (entrega && !foraDaArea) {
+    taxa = calculo.status === 'pronto' ? calculo.taxa : regras.taxaMinima;
+  }
+  const totalFinal = total + taxa;
+
+  function textoDaTaxa() {
+    if (!entrega) {
+      return 'Grátis';
+    }
+    if (calculando) {
+      return 'Calculando...';
+    }
+    if (foraDaArea) {
+      return 'Fora da área';
+    }
+    return formatarPreco(taxa);
+  }
 
   function confirmarPedido() {
+    if (calculando) {
+      return;
+    }
+
     const novosErros = {};
-    if (entrega && !enderecoSalvo && endereco.trim().length < 5) {
-      novosErros.endereco = 'Informe o endereço de entrega.';
+    if (entrega && !destino) {
+      if (encontrado) {
+        novosErros.numero = 'Informe o número.';
+      } else {
+        novosErros.endereco = 'Informe o endereço de entrega.';
+      }
+    }
+    if (foraDaArea) {
+      novosErros.entrega = true;
     }
     if (!pagamento) {
       novosErros.pagamento = 'Escolha a forma de pagamento.';
@@ -78,12 +188,11 @@ export default function CheckoutScreen({ navigation }) {
       itens: itens.map((item) => ({ ...item })),
       tempoEstimado: tiposEntrega.find((t) => t.id === tipo).tempo,
       tipo: entrega ? 'Entrega' : 'Retirada',
-      endereco: entrega
-        ? enderecoSalvo
-          ? `${enderecoSalvo.rua}, ${enderecoSalvo.bairro}`
-          : endereco.trim()
-        : null,
+      endereco: entrega ? destino.texto : null,
       pagamento: formasPagamento.find((f) => f.id === pagamento).rotulo,
+      taxaEntrega: taxa,
+      distanciaKm:
+        entrega && calculo.status === 'pronto' ? Number(calculo.distanciaKm.toFixed(1)) : null,
       total: totalFinal,
     };
 
@@ -218,13 +327,64 @@ export default function CheckoutScreen({ navigation }) {
             )}
 
             {!enderecoSalvo && (
-              <Input
-                value={endereco}
-                onChangeText={setEndereco}
-                placeholder="Endereço de entrega (rua, número, bairro)"
-                erro={erros.endereco}
-                style={styles.campo}
-              />
+              <>
+                <Input
+                  value={cep}
+                  onChangeText={alterarCep}
+                  placeholder="CEP (opcional)"
+                  keyboardType="number-pad"
+                  maxLength={9}
+                  erro={erroCep}
+                  style={styles.campo}
+                />
+                {buscandoCep && <Text style={styles.infoEntrega}>Buscando o CEP...</Text>}
+
+                {encontrado ? (
+                  <>
+                    <Text style={styles.enderecoDoCep}>
+                      {[encontrado.rua, encontrado.bairro].filter(Boolean).join(' - ')},{' '}
+                      {encontrado.cidade}/{encontrado.uf}
+                    </Text>
+                    <Input
+                      ref={campoNumero}
+                      value={numero}
+                      onChangeText={setNumero}
+                      placeholder="Número e complemento"
+                      erro={erros.numero}
+                      style={styles.campo}
+                    />
+                  </>
+                ) : (
+                  <Input
+                    value={endereco}
+                    onChangeText={setEndereco}
+                    placeholder="Endereço de entrega (rua, número, bairro)"
+                    erro={erros.endereco}
+                    style={styles.campo}
+                  />
+                )}
+              </>
+            )}
+
+            {calculo.status === 'calculando' && (
+              <Text style={styles.infoEntrega}>Calculando a distância...</Text>
+            )}
+            {calculo.status === 'pronto' && !calculo.foraDaArea && (
+              <Text style={styles.infoEntrega}>
+                Fica a {formatarDistancia(calculo.distanciaKm)} da lanchonete.
+              </Text>
+            )}
+            {foraDaArea && (
+              <Text style={styles.erro}>
+                Esse endereço fica a {formatarDistancia(calculo.distanciaKm)}. A gente entrega até{' '}
+                {regras.raioMaximoKm} km, escolha Retirada ou outro endereço.
+              </Text>
+            )}
+            {calculo.status === 'erro' && (
+              <Text style={styles.infoEntrega}>
+                Não deu pra calcular a distância, vai a taxa mínima de{' '}
+                {formatarPreco(regras.taxaMinima)}.
+              </Text>
             )}
           </>
         )}
@@ -263,7 +423,9 @@ export default function CheckoutScreen({ navigation }) {
           </View>
           <View style={styles.linhaValor}>
             <Text style={styles.valorRotulo}>Taxa de entrega</Text>
-            <Text style={styles.valorRotulo}>{entrega ? formatarPreco(taxa) : 'Grátis'}</Text>
+            <Text style={styles.valorRotulo}>
+              {textoDaTaxa()}
+            </Text>
           </View>
           <View style={[styles.linhaValor, styles.linhaTotal]}>
             <Text style={styles.totalTexto}>Total</Text>
@@ -271,7 +433,12 @@ export default function CheckoutScreen({ navigation }) {
           </View>
         </View>
 
-        <Button titulo="Confirmar pedido" onPress={confirmarPedido} style={styles.botaoConfirmar} />
+        <Button
+          titulo="Confirmar pedido"
+          onPress={confirmarPedido}
+          desabilitado={calculando}
+          style={styles.botaoConfirmar}
+        />
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -292,6 +459,17 @@ function criarEstilos(colors) {
       color: colors.text,
       marginTop: spacing.md,
       marginBottom: spacing.sm,
+    },
+    infoEntrega: {
+      fontSize: fontSizes.sm,
+      color: colors.textSecondary,
+      marginTop: spacing.sm,
+    },
+    enderecoDoCep: {
+      fontSize: fontSizes.md,
+      fontWeight: fontWeights.medium,
+      color: colors.text,
+      marginTop: spacing.sm,
     },
     card: {
       backgroundColor: colors.surface,

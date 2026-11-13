@@ -106,10 +106,19 @@ export function AuthProvider({ children }) {
     );
   }
 
-  function adicionarEndereco({ apelido, rua, bairro }) {
+  // cep, cidade e uf vêm da busca de CEP do Perfil (ficam vazios se a pessoa não usou)
+  function adicionarEndereco({ apelido, rua, bairro, cep = '', cidade = '', uf = '' }) {
     alterarEnderecos((atuais) => [
       ...atuais,
-      { id: Date.now(), apelido: apelido.trim(), rua: rua.trim(), bairro: bairro.trim() },
+      {
+        id: Date.now(),
+        apelido: apelido.trim(),
+        rua: rua.trim(),
+        bairro: bairro.trim(),
+        cep,
+        cidade,
+        uf,
+      },
     ]);
   }
 
