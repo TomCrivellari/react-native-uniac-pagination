@@ -1,61 +1,108 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
+
+import {
+  cadastrar,
+  entrar,
+  entrarComGoogle as entrarPeloGoogle,
+  mensagemDeErro,
+  observarUsuario,
+  sair,
+  usuarioAtual,
+} from '../services/auth';
+import { buscarPerfil, salvarEnderecos } from '../services/usuarios';
 
 const AuthContext = createContext();
 
-// E-mail sem espaços e em minúsculas, para "Maria@Email.com " e "maria@email.com" serem a mesma conta
-const normalizarEmail = (email) => email.trim().toLowerCase();
+// Erros do firebase que são do e-mail; o resto o Login mostra embaixo da senha
+const errosDeEmail = ['auth/invalid-email', 'auth/user-not-found', 'auth/user-disabled'];
+
+// Fechar a janela do Google não é erro, a pessoa só desistiu
+const googleCancelado = ['auth/popup-closed-by-user', 'auth/cancelled-popup-request'];
 
 export function AuthProvider({ children }) {
-  // Contas criadas no Cadastro. Não há back-end: ficam só na memória e somem ao recarregar o app
-  const [contas, setContas] = useState([]);
-  // Conta logada ({ nome, email }), ou null
+  // Conta logada ({ uid, nome, email }), ou null
   const [usuario, setUsuario] = useState(null);
-
   // Endereços da conta logada (cadastrados no Perfil, escolhidos no Checkout)
-  const enderecos = contas.find((c) => c.email === usuario?.email)?.enderecos ?? [];
+  const [enderecos, setEnderecos] = useState([]);
+  // Fica true até o firebase dizer se já tinha alguém logado (a Splash espera isso)
+  const [carregando, setCarregando] = useState(true);
 
-  // Devolve a mensagem de erro, ou null quando a conta foi criada (igual às funções de utils/validacao)
-  function criarConta({ nome, email, senha }) {
-    const emailNormalizado = normalizarEmail(email);
+  useEffect(() => {
+    return observarUsuario(async (conta) => {
+      if (!conta) {
+        setUsuario(null);
+        setEnderecos([]);
+        setCarregando(false);
+        return;
+      }
 
-    if (contas.some((c) => c.email === emailNormalizado)) {
-      return 'Já existe uma conta com este e-mail.';
+      const perfil = await buscarPerfil(conta.uid).catch(() => null);
+
+      // se a pessoa saiu enquanto o perfil carregava, ignora
+      if (usuarioAtual()?.uid !== conta.uid) {
+        return;
+      }
+
+      setUsuario({
+        uid: conta.uid,
+        nome: perfil?.nome || conta.displayName || '',
+        email: conta.email,
+      });
+      setEnderecos(perfil?.enderecos ?? []);
+      setCarregando(false);
+    });
+  }, []);
+
+  // Devolve a mensagem de erro, ou null quando a conta foi criada
+  async function criarConta({ nome, email, senha }) {
+    try {
+      await cadastrar({ nome, email, senha });
+      // o firebase já entra na conta nova, mas aqui o fluxo é voltar pro Login e entrar com a senha
+      await sair();
+      return null;
+    } catch (erro) {
+      return mensagemDeErro(erro);
     }
-
-    setContas((atuais) => [
-      ...atuais,
-      { nome: nome.trim(), email: emailNormalizado, senha, enderecos: [] },
-    ]);
-    return null;
   }
 
   // Devolve { campo, mensagem } para o Login mostrar no campo certo, ou null quando entrou
-  function fazerLogin(email, senha) {
-    const conta = contas.find((c) => c.email === normalizarEmail(email));
-
-    if (!conta) {
+  async function fazerLogin(email, senha) {
+    try {
+      await entrar(email, senha);
+      return null;
+    } catch (erro) {
       return {
-        campo: 'email',
-        mensagem: 'Não encontramos uma conta com este e-mail. Crie uma conta.',
+        campo: errosDeEmail.includes(erro.code) ? 'email' : 'senha',
+        mensagem: mensagemDeErro(erro),
       };
     }
-    if (conta.senha !== senha) {
-      return { campo: 'senha', mensagem: 'Senha incorreta.' };
-    }
-
-    setUsuario({ nome: conta.nome, email: conta.email });
-    return null;
   }
 
-  const fazerLogout = () => setUsuario(null);
+  // Devolve null quando entrou, { cancelado: true } se fechou a janela, ou { mensagem }
+  async function entrarComGoogle() {
+    try {
+      await entrarPeloGoogle();
+      return null;
+    } catch (erro) {
+      if (googleCancelado.includes(erro.code)) {
+        return { cancelado: true };
+      }
+      return { mensagem: mensagemDeErro(erro) };
+    }
+  }
 
-  // Troca os endereços só da conta logada; as outras contas ficam como estão
+  const fazerLogout = () => sair();
+
+  // Troca a lista na tela na hora e salva no banco em segundo plano
   function alterarEnderecos(alterar) {
     if (!usuario) {
       return;
     }
-    setContas((atuais) =>
-      atuais.map((c) => (c.email === usuario.email ? { ...c, enderecos: alterar(c.enderecos) } : c))
+
+    const novos = alterar(enderecos);
+    setEnderecos(novos);
+    salvarEnderecos(usuario.uid, novos).catch((erro) =>
+      console.warn('Não deu pra salvar os endereços', erro)
     );
   }
 
@@ -74,9 +121,11 @@ export function AuthProvider({ children }) {
     <AuthContext.Provider
       value={{
         usuario,
+        carregando,
         enderecos,
         criarConta,
         fazerLogin,
+        entrarComGoogle,
         fazerLogout,
         adicionarEndereco,
         removerEndereco,

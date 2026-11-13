@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -14,15 +14,12 @@ import {
   validarSenha,
 } from '../utils/validacao';
 
-const tempoCadastrando = 800;
-
 export default function CadastroScreen({ navigation }) {
   const styles = useEstilos(criarEstilos);
   const insets = useSafeAreaInsets();
   const campoEmail = useRef(null);
   const campoSenha = useRef(null);
   const campoConfirmacao = useRef(null);
-  const timerCadastro = useRef(null);
   const { criarConta } = useAuth();
 
   const [nome, setNome] = useState('');
@@ -40,9 +37,7 @@ export default function CadastroScreen({ navigation }) {
   const erroSenha = tentouCadastrar ? validarSenha(senha) : null;
   const erroConfirmacao = tentouCadastrar ? validarConfirmacaoSenha(senha, confirmacao) : null;
 
-  useEffect(() => () => clearTimeout(timerCadastro.current), []);
-
-  function cadastrar() {
+  async function cadastrar() {
     setTentouCadastrar(true);
 
     if (
@@ -54,17 +49,16 @@ export default function CadastroScreen({ navigation }) {
       return;
     }
 
-    const erro = criarConta({ nome, email, senha });
+    setCadastrando(true);
+    const erro = await criarConta({ nome, email, senha });
     if (erro) {
       setErroEmailEmUso(erro);
+      setCadastrando(false);
       return;
     }
 
-    setCadastrando(true);
-    timerCadastro.current = setTimeout(() => {
-      // Volta ao Login (que já está na pilha) com o e-mail preenchido para entrar com a conta nova
-      navigation.popTo('Login', { emailCriado: email.trim() });
-    }, tempoCadastrando);
+    // Volta ao Login (que já está na pilha) com o e-mail preenchido para entrar com a conta nova
+    navigation.popTo('Login', { emailCriado: email.trim() });
   }
 
   function alterarEmail(texto) {

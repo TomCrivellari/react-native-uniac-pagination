@@ -2,44 +2,23 @@ import { addDoc, collection, doc, getDoc, getDocs, query, serverTimestamp, where
 
 import { db } from './firebase';
 
-export const statusDoPedido = {
-  recebido: 'Recebido',
-  emPreparo: 'Em preparo',
-  pronto: 'Pronto',
-  entregue: 'Entregue',
-  cancelado: 'Cancelado',
-};
+function comData(documento) {
+  const dados = documento.data();
 
-function arredondar(valor) {
-  return Math.round(valor * 100) / 100;
+  return {
+    ...dados,
+    id: documento.id,
+    // a tela de pedidos trabalha com data em texto
+    data: dados.criadoEm?.toDate().toISOString() ?? new Date().toISOString(),
+  };
 }
 
-// itens vem do carrinho no formato [{ id, nome, preco, quantidade }]
-export async function criarPedido({ usuarioId, itens, formaPagamento, enderecoEntrega }) {
-  if (!itens?.length) {
-    throw new Error('O carrinho está vazio.');
-  }
-
-  // guarda nome e preço do jeito que estavam na hora da compra,
-  // assim se o preço mudar depois o histórico não muda junto
-  const itensDoPedido = itens.map((item) => ({
-    produtoId: item.id,
-    nome: item.nome,
-    precoUnitario: item.preco,
-    quantidade: item.quantidade,
-  }));
-
-  const total = arredondar(
-    itensDoPedido.reduce((soma, item) => soma + item.precoUnitario * item.quantidade, 0),
-  );
-
+// pedido no formato que o Checkout monta: { numero, itens, tipo, endereco, pagamento, total, ... }
+export async function criarPedido(usuarioId, pedido) {
   const novo = await addDoc(collection(db, 'pedidos'), {
+    ...pedido,
     usuarioId,
-    itens: itensDoPedido,
-    total,
     status: 'recebido',
-    formaPagamento,
-    enderecoEntrega: enderecoEntrega ?? null,
     criadoEm: serverTimestamp(),
   });
 
@@ -50,9 +29,7 @@ export async function listarPedidosDoUsuario(usuarioId) {
   const resultado = await getDocs(query(collection(db, 'pedidos'), where('usuarioId', '==', usuarioId)));
 
   // mais recente primeiro. ordenando aqui pra não precisar de índice no firestore
-  return resultado.docs
-    .map((documento) => ({ id: documento.id, ...documento.data() }))
-    .sort((a, b) => (b.criadoEm?.toMillis() ?? 0) - (a.criadoEm?.toMillis() ?? 0));
+  return resultado.docs.map(comData).sort((a, b) => b.data.localeCompare(a.data));
 }
 
 export async function buscarPedido(id) {
@@ -62,5 +39,5 @@ export async function buscarPedido(id) {
     return null;
   }
 
-  return { id: documento.id, ...documento.data() };
+  return comData(documento);
 }

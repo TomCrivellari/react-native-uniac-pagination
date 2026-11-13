@@ -22,7 +22,6 @@ import { fontSizes, fontWeights, radius, spacing } from '../theme';
 import { validarEmail, validarSenha } from '../utils/validacao';
 
 const tamanhoLogo = 140;
-const tempoEntrando = 800;
 
 function avisar(titulo, mensagem) {
   // Alert.alert não aparece no navegador, então no web usamos o alert do próprio navegador
@@ -38,8 +37,7 @@ export default function LoginScreen({ navigation, route }) {
   const styles = useEstilos(criarEstilos);
   const insets = useSafeAreaInsets();
   const campoSenha = useRef(null);
-  const timerEntrada = useRef(null);
-  const { fazerLogin } = useAuth();
+  const { fazerLogin, entrarComGoogle } = useAuth();
   // Vem do Cadastro quando a conta acabou de ser criada
   const emailCriado = route.params?.emailCriado;
 
@@ -48,6 +46,7 @@ export default function LoginScreen({ navigation, route }) {
   // Os erros só aparecem depois da primeira tentativa de entrar
   const [tentouEntrar, setTentouEntrar] = useState(false);
   const [entrando, setEntrando] = useState(false);
+  const [entrandoGoogle, setEntrandoGoogle] = useState(false);
   // Conta não encontrada ou senha errada: { campo: 'email' | 'senha', mensagem }
   const [erroConta, setErroConta] = useState(null);
 
@@ -57,8 +56,6 @@ export default function LoginScreen({ navigation, route }) {
   const erroSenha =
     (tentouEntrar ? validarSenha(senha) : null) ??
     (erroConta?.campo === 'senha' ? erroConta.mensagem : null);
-
-  useEffect(() => () => clearTimeout(timerEntrada.current), []);
 
   // Conta recém-criada: já deixa o e-mail preenchido e o cursor na senha
   useEffect(() => {
@@ -81,24 +78,43 @@ export default function LoginScreen({ navigation, route }) {
     setErroConta(null);
   }
 
-  function entrar() {
+  function irParaOApp() {
+    navigation.reset({ index: 0, routes: [{ name: 'App' }] });
+  }
+
+  async function entrar() {
     setTentouEntrar(true);
 
     if (validarEmail(email) || validarSenha(senha)) {
       return;
     }
 
-    const erro = fazerLogin(email, senha);
+    setEntrando(true);
+    const erro = await fazerLogin(email, senha);
     if (erro) {
       setErroConta(erro);
+      setEntrando(false);
       return;
     }
 
-    setEntrando(true);
-    timerEntrada.current = setTimeout(() => {
-      navigation.reset({ index: 0, routes: [{ name: 'App' }] });
-    }, tempoEntrando);
+    irParaOApp();
   }
+
+  async function entrarGoogle() {
+    setEntrandoGoogle(true);
+    const erro = await entrarComGoogle();
+    if (erro) {
+      setEntrandoGoogle(false);
+      if (erro.mensagem) {
+        avisar('Não deu pra entrar', erro.mensagem);
+      }
+      return;
+    }
+
+    irParaOApp();
+  }
+
+  const ocupado = entrando || entrandoGoogle;
 
   function criarConta() {
     navigation.navigate('Cadastro');
@@ -150,7 +166,7 @@ export default function LoginScreen({ navigation, route }) {
             returnKeyType="next"
             onSubmitEditing={() => campoSenha.current?.focus()}
             submitBehavior="submit"
-            editable={!entrando}
+            editable={!ocupado}
           />
 
           <Input
@@ -167,19 +183,34 @@ export default function LoginScreen({ navigation, route }) {
             textContentType="password"
             returnKeyType="done"
             onSubmitEditing={entrar}
-            editable={!entrando}
+            editable={!ocupado}
           />
 
           <Button
             titulo="Entrar"
             onPress={entrar}
             carregando={entrando}
+            desabilitado={entrandoGoogle}
             style={styles.botaoEntrar}
+          />
+
+          <View style={styles.divisoria}>
+            <View style={styles.linha} />
+            <Text style={styles.ou}>ou</Text>
+            <View style={styles.linha} />
+          </View>
+
+          <Button
+            titulo="Entrar com Google"
+            variante="secundario"
+            onPress={entrarGoogle}
+            carregando={entrandoGoogle}
+            desabilitado={entrando}
           />
 
           <View style={styles.signup}>
             <Text style={styles.signupText}>Ainda não tem conta? </Text>
-            <Pressable onPress={criarConta} disabled={entrando} accessibilityRole="link">
+            <Pressable onPress={criarConta} disabled={ocupado} accessibilityRole="link">
               <Text style={styles.signupLink}>Criar conta</Text>
             </Pressable>
           </View>
@@ -245,6 +276,21 @@ function criarEstilos(colors) {
     // Somado ao marginBottom do Input, fica spacing.lg entre a senha e o botão
     botaoEntrar: {
       marginTop: spacing.sm,
+    },
+    divisoria: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginVertical: spacing.md,
+    },
+    linha: {
+      flex: 1,
+      height: StyleSheet.hairlineWidth,
+      backgroundColor: colors.border,
+    },
+    ou: {
+      fontSize: fontSizes.sm,
+      color: colors.textSecondary,
+      marginHorizontal: spacing.md,
     },
     signup: {
       flexDirection: 'row',

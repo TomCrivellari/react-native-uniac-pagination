@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { initializeApp } from 'firebase/app';
 import { getAuth, getReactNativePersistence, initializeAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { initializeFirestore } from 'firebase/firestore';
 import { Platform } from 'react-native';
 
 const firebaseConfig = {
@@ -15,7 +15,8 @@ const firebaseConfig = {
 
 export const app = initializeApp(firebaseConfig);
 
-export const db = getFirestore(app);
+// o firestore dá erro se algum campo vier undefined, assim ele só ignora o campo
+export const db = initializeFirestore(app, { ignoreUndefinedProperties: true });
 
 // no celular o login fica salvo no AsyncStorage, senão a pessoa teria que
 // entrar de novo toda vez que abrisse o app. no navegador o firebase já salva sozinho

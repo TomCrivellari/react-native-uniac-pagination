@@ -3,12 +3,11 @@ import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from 'firebase/firest
 import { db } from './firebase';
 
 // o id do documento é o mesmo uid do usuário no Authentication
-export async function criarPerfil(uid, { nome, email, telefone = '' }) {
+export async function criarPerfil(uid, { nome, email }) {
   await setDoc(doc(db, 'usuarios', uid), {
     nome,
     email,
-    telefone,
-    endereco: null,
+    enderecos: [],
     criadoEm: serverTimestamp(),
   });
 }
@@ -23,13 +22,12 @@ export async function buscarPerfil(uid) {
   return { id: documento.id, ...documento.data() };
 }
 
-// manda só o que mudou, ex: atualizarPerfil(uid, { telefone: '(11) 98888-7777' })
+// manda só o que mudou, ex: atualizarPerfil(uid, { nome: 'Maria' })
 export async function atualizarPerfil(uid, dados) {
   await updateDoc(doc(db, 'usuarios', uid), dados);
 }
 
-export async function salvarEndereco(uid, { rua, numero, bairro, cidade, complemento = '' }) {
-  await updateDoc(doc(db, 'usuarios', uid), {
-    endereco: { rua, numero, bairro, cidade, complemento },
-  });
+// a lista inteira, do jeito que o Perfil monta: [{ id, apelido, rua, bairro }]
+export async function salvarEnderecos(uid, enderecos) {
+  await updateDoc(doc(db, 'usuarios', uid), { enderecos });
 }
