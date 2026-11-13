@@ -1,15 +1,24 @@
-import { NavigationContainer } from '@react-navigation/native';
 import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { AuthProvider } from './src/context/AuthContext';
+import { CartProvider } from './src/context/CartContext';
+import { PedidosProvider } from './src/context/PedidosContext';
+import { TemaProvider } from './src/context/TemaContext';
 
-import AppDrawer from './src/navigation/AppDrawer';
+import Navegacao from './src/navigation/Navegacao';
 
 export default function App() {
   return (
     <GestureHandlerRootView style={styles.container}>
-      <NavigationContainer>
-        <AppDrawer />
-      </NavigationContainer>
+      <TemaProvider>
+        <AuthProvider>
+          <PedidosProvider>
+            <CartProvider>
+              <Navegacao />
+            </CartProvider>
+          </PedidosProvider>
+        </AuthProvider>
+      </TemaProvider>
     </GestureHandlerRootView>
   );
 }

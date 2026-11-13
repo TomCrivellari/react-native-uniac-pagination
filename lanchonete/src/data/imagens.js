@@ -1,0 +1,23 @@
+// Foto de cada produto, pelo id de produtos.js
+export const imagensProdutos = {
+  1: require('./img/xburguer.jpg'),
+  2: require('./img/xsalada.jpg'),
+  3: require('./img/xbacon.jpg'),
+  4: require('./img/xtudo.jpg'),
+  5: require('./img/xburguer-combo.jpg'),
+  6: require('./img/xbacon-combo.jpg'),
+  7: require('./img/hotdog.jpg'),
+  8: require('./img/hotdog-completo.jpg'),
+  9: require('./img/batataFrita.jpg'),
+  10: require('./img/nuggets.jpg'),
+  11: require('./img/mistoQuente.jpg'),
+  12: require('./img/sanduicheFrango.jpg'),
+  13: require('./img/refrigerantes.jpg'),
+  14: require('./img/refrigerantes-600ml.jpg'),
+  15: require('./img/sucos.jpg'),
+  16: require('./img/agua.jpg'),
+  17: require('./img/brownie.jpg'),
+  18: require('./img/milkshake.jpg'),
+  19: require('./img/molho.jpg'),
+  20: require('./img/barbecue.jpg'),
+};
